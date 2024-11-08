@@ -1,21 +1,21 @@
 import getDeck from "../utils/getDeck";
 
 export class Deck {
-  private deck: string[];
+  private cardPile: string[];
   constructor() {
-    this.deck = getDeck();
+    this.cardPile = getDeck();
   }
 
-  public getDeck() {
-    return this.deck;
+  public getCardPile() {
+    return this.cardPile;
   }
 
   public getCard() {
-    const card = this.deck.shift();
+    const card = this.cardPile.shift();
     return card || "";
   }
 
-  public resetDeck() {
-    this.deck = getDeck();
+  public resetCardPile() {
+    this.cardPile = getDeck();
   }
 }

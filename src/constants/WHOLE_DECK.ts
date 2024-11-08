@@ -51,4 +51,4 @@ export default [
   "JC",
   "QC",
   "KC",
-];
+] as const;
