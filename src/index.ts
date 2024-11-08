@@ -1,7 +1,13 @@
 import express from "express";
+import GameRoute from "./web/game";
+import { InMemoryDataStore } from "./datastore/InMemoryDataStore";
 
 const app = express();
 const port = 9000;
+InMemoryDataStore.getInstance();
+
+app.use(express.json());
+app.use("/game", GameRoute);
 
 app.get("/health-check", (req, res) => {
   res.send("Server is Up");
@@ -71,20 +77,3 @@ app.listen(port, () => {
 //     ],
 //   ],
 // };
-
-// InMemoryDataStore.getInstance();
-// const game1 = InMemoryDataStore.createGame();
-// // console.log(game1.getDeck());
-// // console.log(game1.getCard());
-// // console.log(game1.getCard());
-// // console.log(game1.getCard());
-// // console.log(game1.getCard());
-// game1.addPlayer("Ashutosh1");
-// game1.addPlayer("Ashutosh2");
-// game1.addPlayer("Ashutosh3");
-// // game1.addPlayer("Ashutosh4");
-// game1.createTeams();
-// console.log(game1.getGameDetails());
-
-// const game2 = InMemoryDataStore.getGame(game1.getId());
-// console.log(game2.getDeck());

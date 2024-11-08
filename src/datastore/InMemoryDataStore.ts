@@ -17,7 +17,7 @@ export class InMemoryDataStore {
   }
 
   private static validateInstance() {
-    if (!InMemoryDataStore.instance) throw new Error("No Instance created");
+    if (!InMemoryDataStore.instance) throw Error("No Instance created");
     return true;
   }
 
@@ -31,7 +31,9 @@ export class InMemoryDataStore {
 
   public static getGame(id: string) {
     InMemoryDataStore.validateInstance();
-    return this.instance.games[id] || undefined;
+    const game = this.instance.games[id];
+    if (game) return game;
+    throw Error("Game does not exists");
   }
 
   // update game

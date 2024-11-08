@@ -17,6 +17,8 @@ export class Game {
   private playerTurnIndex: number;
   private playerTurnSequence: string[];
   private board: Board;
+  private isLocked: boolean;
+  private isStarted: boolean;
   constructor(id: string) {
     this.id = id;
     this.deck = new Deck();
@@ -25,6 +27,8 @@ export class Game {
     this.playerTurnIndex = 0;
     this.playerTurnSequence = [];
     this.board = new Board();
+    this.isLocked = false;
+    this.isStarted = false;
   }
 
   public getGameDetails() {
@@ -36,6 +40,8 @@ export class Game {
       playerTurnIndex: this.playerTurnIndex,
       playerTurnSequence: this.playerTurnSequence,
       board: this.board,
+      isLocked: this.isLocked,
+      isStarted: this.isStarted,
     };
   }
 
@@ -52,9 +58,11 @@ export class Game {
   }
 
   public addPlayer(name: string) {
-    if (Object.keys(this.players).length >= 4) return;
+    if (Object.keys(this.players).length >= 4)
+      throw Error("Game is already full.");
     const player = new Player(name);
     this.players[player.getId()] = player;
+    return player.getId();
   }
 
   private getTeamCount() {
