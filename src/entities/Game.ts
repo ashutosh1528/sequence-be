@@ -1,8 +1,8 @@
 import { Deck } from "./Deck";
 import { Player } from "./Player";
 import { Team } from "./Team";
-import TEAM_COLORS from "../constants/TEAM_COLORS";
 import { Board } from "./Board";
+import TEAM_COLORS from "../constants/TEAM_COLORS";
 
 /**
  * 2 players - 2 teams
@@ -27,7 +27,7 @@ export class Game {
     this.board = new Board();
   }
 
-  public getGame() {
+  public getGameDetails() {
     return {
       id: this.id,
       deck: this.deck,
