@@ -1,13 +1,21 @@
 import express from "express";
+import cors from "cors";
 import GameRoute from "./web/game";
 import { InMemoryDataStore } from "./datastore/InMemoryDataStore";
 
 const app = express();
 const port = 9000;
-InMemoryDataStore.getInstance();
+const corsOptions = {
+  origin: "http://localhost:3000",
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTION"],
+  allowedHeaders: ["Content-Type"],
+};
 
 app.use(express.json());
+app.use(cors(corsOptions));
 app.use("/game", GameRoute);
+
+InMemoryDataStore.getInstance();
 
 app.get("/health-check", (req, res) => {
   res.send("Server is Up");

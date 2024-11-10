@@ -5,10 +5,10 @@ export class Player {
   private name: string;
   private isAdmin: boolean;
   private isOnline: boolean;
-  constructor(name: string) {
+  constructor(name: string, isAdmin: boolean) {
     this.id = nanoid();
     this.name = name;
-    this.isAdmin = false;
+    this.isAdmin = isAdmin;
     this.isOnline = false;
   }
 

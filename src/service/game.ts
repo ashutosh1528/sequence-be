@@ -5,9 +5,13 @@ export const createGame = () => {
   return game.getId();
 };
 
-export const addPlayer = (gameId: string, playerName: string) => {
+export const addPlayer = (
+  gameId: string,
+  playerName: string,
+  isAdmin = false
+) => {
   const game = InMemoryDataStore.getGame(gameId);
-  const playerId = game.addPlayer(playerName);
+  const playerId = game.addPlayer(playerName, isAdmin);
   return playerId;
 };
 

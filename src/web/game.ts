@@ -33,7 +33,7 @@ routes.post(
     }
 
     const gameId = GameService.createGame();
-    const playerId = GameService.addPlayer(gameId, playerName);
+    const playerId = GameService.addPlayer(gameId, playerName, true);
     res.status(200).json({
       isSuccess: true,
       gameId,
@@ -72,7 +72,7 @@ routes.patch(
       });
     }
 
-    const playerId = GameService.addPlayer(gameId, playerName);
+    const playerId = GameService.addPlayer(gameId, playerName, false);
     res.status(200).json({
       isSuccess: true,
       playerId,

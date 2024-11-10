@@ -57,10 +57,10 @@ export class Game {
     return this.deck.getCardPile();
   }
 
-  public addPlayer(name: string) {
+  public addPlayer(name: string, isAdmin: boolean) {
     if (Object.keys(this.players).length >= 4)
       throw Error("Game is already full.");
-    const player = new Player(name);
+    const player = new Player(name, isAdmin);
     this.players[player.getId()] = player;
     return player.getId();
   }
