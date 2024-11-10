@@ -1,5 +1,7 @@
 import { Request, Response, Router } from "express";
 import * as GameService from "../service/game";
+import * as AuthService from "../service/auth";
+import { authMiddleware } from "../middleware/auth.middleware";
 
 const routes = Router();
 
@@ -15,6 +17,7 @@ type CreateGameResponseSuccess = {
   isSuccess: boolean;
   gameId: string;
   playerId: string;
+  token: string;
 };
 routes.post(
   "/",
@@ -34,10 +37,12 @@ routes.post(
 
     const gameId = GameService.createGame();
     const playerId = GameService.addPlayer(gameId, playerName, true);
+    const token = AuthService.createToken(gameId, playerId);
     res.status(200).json({
       isSuccess: true,
       gameId,
       playerId,
+      token,
     });
   }
 );
@@ -82,8 +87,8 @@ routes.patch(
 );
 
 // temp ??
-routes.get("/", (req: Request<{}, {}, {}, { gameId: string }>, res) => {
-  const game = GameService.getGameDetails(req.query?.gameId || "");
+routes.get("/", authMiddleware, (req: Request, res) => {
+  const game = GameService.getGameDetails(req.authParams?.gameId || "");
   res.status(200).json({ ...game });
 });
 

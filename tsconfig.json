@@ -14,11 +14,12 @@
     // "noEmit": true,
     // "lib": ["esnext"],
     // "types": ["node"],
-    "baseUrl": "./"
+    "baseUrl": "./",
+    "typeRoots": ["./node_modules/@types", "src/@types"]
   },
   // "ts-node": {
   //   "esm": true
   // },
   "exclude": ["node_modules"],
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "src/@types/**/*"]
 }

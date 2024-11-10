@@ -1,5 +1,5 @@
 import BOARD from "../constants/BOARD";
-import { Cell } from "../types/Cell.type";
+import { Cell } from "../@types/Cell.type";
 
 export class Board {
   private gameBoard: Cell[][];

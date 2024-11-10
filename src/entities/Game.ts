@@ -57,6 +57,12 @@ export class Game {
     return this.deck.getCardPile();
   }
 
+  public getPlayer(playerId: string) {
+    const player = this.players[playerId];
+    if (player) return player;
+    throw Error("Player does not exist in game.");
+  }
+
   public addPlayer(name: string, isAdmin: boolean) {
     if (Object.keys(this.players).length >= 4)
       throw Error("Game is already full.");
