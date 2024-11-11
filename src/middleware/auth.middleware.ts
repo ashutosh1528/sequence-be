@@ -1,15 +1,13 @@
 import { Request, Response, NextFunction } from "express";
 import * as AuthService from "../service/auth";
+import { TOKEN_COOKIE } from "../constants";
 
 export const authMiddleware = (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  let token = req.headers?.["authtoken"] || "";
-  if (typeof token !== "string") {
-    token = token?.[0] || "";
-  }
+  const token = req.cookies?.[TOKEN_COOKIE] || "";
   const { gameId, playerId } = AuthService.verifyToken(token);
   req.authParams = {
     gameId,

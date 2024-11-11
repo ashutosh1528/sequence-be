@@ -2,6 +2,7 @@ import { Request, Response, Router } from "express";
 import * as GameService from "../service/game";
 import * as AuthService from "../service/auth";
 import { authMiddleware } from "../middleware/auth.middleware";
+import { TOKEN_COOKIE } from "../constants";
 
 const routes = Router();
 
@@ -17,7 +18,6 @@ type CreateGameResponseSuccess = {
   isSuccess: boolean;
   gameId: string;
   playerId: string;
-  token: string;
 };
 routes.post(
   "/",
@@ -38,12 +38,19 @@ routes.post(
     const gameId = GameService.createGame();
     const playerId = GameService.addPlayer(gameId, playerName, true);
     const token = AuthService.createToken(gameId, playerId);
-    res.status(200).json({
-      isSuccess: true,
-      gameId,
-      playerId,
-      token,
-    });
+    res
+      .cookie(TOKEN_COOKIE, token, {
+        httpOnly: true,
+        sameSite: "strict",
+        secure: true,
+        // secure: process.env.NODE_ENV === "production",
+      })
+      .status(200)
+      .json({
+        isSuccess: true,
+        gameId,
+        playerId,
+      });
   }
 );
 

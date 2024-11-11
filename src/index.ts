@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import GameRoute from "./web/game";
+import cookieParser from "cookie-parser";
 import { InMemoryDataStore } from "./datastore/InMemoryDataStore";
 
 const app = express();
@@ -9,10 +10,13 @@ const corsOptions = {
   origin: "http://localhost:3000",
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTION"],
   allowedHeaders: ["Content-Type"],
+  credentials: true,
 };
 
 app.use(express.json());
 app.use(cors(corsOptions));
+app.use(cookieParser());
+
 app.use("/game", GameRoute);
 
 InMemoryDataStore.getInstance();
