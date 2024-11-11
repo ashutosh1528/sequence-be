@@ -1,5 +1,5 @@
-import { nanoid } from "nanoid";
 import { Game } from "../entities/Game";
+import getGameId from "../utils/getGameId";
 
 export class InMemoryDataStore {
   private static instance: InMemoryDataStore;
@@ -23,7 +23,11 @@ export class InMemoryDataStore {
 
   public static createGame() {
     InMemoryDataStore.validateInstance();
-    const gameId = nanoid();
+    let gameId: string;
+    while (true) {
+      gameId = getGameId();
+      if (!this.instance.games[gameId]) break;
+    }
     const game = new Game(gameId);
     this.instance.games[gameId] = game;
     return game;
