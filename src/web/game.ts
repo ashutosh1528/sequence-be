@@ -73,7 +73,7 @@ routes.patch(
     if (!gameId || typeof gameId !== "string") {
       res.status(400).json({
         isSuccess: false,
-        errorMessage: "Unable to get game, game ID is missing/invalid.",
+        errorMessage: "Game ID is missing/invalid.",
       });
       return;
     }
@@ -85,11 +85,20 @@ routes.patch(
     }
 
     const playerId = GameService.addPlayer(gameId, playerName, false);
-    res.status(200).json({
-      isSuccess: true,
-      playerId,
-      // token in some cases ?
-    });
+    const token = AuthService.createToken(gameId, playerId);
+    res
+      .cookie(TOKEN_COOKIE, token, {
+        httpOnly: true,
+        sameSite: "strict",
+        secure: true,
+        // secure: process.env.NODE_ENV === "production",
+      })
+      .status(200)
+      .json({
+        isSuccess: true,
+        playerId,
+        // token in some cases ?
+      });
   }
 );
 
