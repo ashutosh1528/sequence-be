@@ -1,8 +1,11 @@
 import express from "express";
 import cors from "cors";
+import http from "http";
+import { Server } from "socket.io";
 import GameRoute from "./web/game";
 import cookieParser from "cookie-parser";
 import { InMemoryDataStore } from "./datastore/InMemoryDataStore";
+import { SOCKET_IO } from "./constants";
 
 const app = express();
 const port = 9000;
@@ -16,7 +19,9 @@ const corsOptions = {
 app.use(express.json());
 app.use(cors(corsOptions));
 app.use(cookieParser());
-
+const server = http.createServer(app);
+const io = new Server(server, { cors: { origin: "http://localhost:3000" } });
+app.set(SOCKET_IO, io);
 app.use("/game", GameRoute);
 
 InMemoryDataStore.getInstance();
@@ -25,7 +30,7 @@ app.get("/health-check", (req, res) => {
   res.send("Server is Up");
 });
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 

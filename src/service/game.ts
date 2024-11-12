@@ -11,7 +11,7 @@ export const addPlayer = (
   isAdmin = false
 ) => {
   const game = InMemoryDataStore.getGame(gameId);
-  const playerId = game.addPlayer(playerName, isAdmin);
+  const playerId = game.addPlayer(playerName.trim(), isAdmin);
   return playerId;
 };
 
