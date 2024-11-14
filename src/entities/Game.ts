@@ -9,6 +9,10 @@ import TEAM_COLORS from "../constants/TEAM_COLORS";
  * 3 players - 3 teams
  * 4 players - 2 teams
  */
+type SocketDetails = {
+  roomId: string;
+  playerSocketIds: Record<string, string>;
+};
 export class Game {
   private id: string;
   private deck: Deck;
@@ -19,6 +23,7 @@ export class Game {
   private board: Board;
   private isLocked: boolean;
   private isStarted: boolean;
+  private roomId: string;
   constructor(id: string) {
     this.id = id;
     this.deck = new Deck();
@@ -29,6 +34,7 @@ export class Game {
     this.board = new Board();
     this.isLocked = false;
     this.isStarted = false;
+    this.roomId = "";
   }
 
   public getGameDetails() {
@@ -42,6 +48,7 @@ export class Game {
       board: this.board,
       isLocked: this.isLocked,
       isStarted: this.isStarted,
+      roomId: this.roomId,
     };
   }
 
@@ -63,12 +70,30 @@ export class Game {
     throw Error("Player does not exist in game.");
   }
 
+  public getRoomId() {
+    return this.roomId;
+  }
+
+  public setRoomId(roomId: string) {
+    this.roomId = roomId;
+  }
+
   public addPlayer(name: string, isAdmin: boolean) {
     if (Object.keys(this.players).length >= 4)
       throw Error("Game is already full.");
     const player = new Player(name, isAdmin);
     this.players[player.getId()] = player;
     return player.getId();
+  }
+
+  public getSocketDetails() {
+    const result: SocketDetails = { roomId: this.roomId, playerSocketIds: {} };
+    Object.values(this.players).forEach((player) => {
+      const playerId = player.getId();
+      const playerSocketId = player.getSocketId();
+      result.playerSocketIds[playerId] = playerSocketId;
+    });
+    return result;
   }
 
   private getTeamCount() {

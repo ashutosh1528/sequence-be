@@ -6,6 +6,7 @@ import GameRoute from "./web/game";
 import cookieParser from "cookie-parser";
 import { InMemoryDataStore } from "./datastore/InMemoryDataStore";
 import { SOCKET_IO } from "./constants";
+import { createGameRoom, joinGameRoom } from "./web/socket";
 
 const app = express();
 const port = 9000;
@@ -22,6 +23,10 @@ app.use(cookieParser());
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "http://localhost:3000" } });
 app.set(SOCKET_IO, io);
+io.on("connection", (socket) => {
+  socket.on("createGameRoom", createGameRoom(socket));
+  socket.on("joinGameRoom", joinGameRoom(socket, io));
+});
 app.use("/game", GameRoute);
 
 InMemoryDataStore.getInstance();
