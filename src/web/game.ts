@@ -17,7 +17,10 @@ type CreateGameRequest = {
 type CreateGameResponseSuccess = {
   isSuccess: boolean;
   gameId: string;
-  playerId: string;
+  id: string;
+  name: string;
+  isAdmin: boolean;
+  isOnline: boolean;
 };
 routes.post(
   "/",
@@ -37,6 +40,7 @@ routes.post(
 
     const gameId = GameService.createGame();
     const playerId = GameService.addPlayer(gameId, playerName, true);
+    const player = GameService.getPlayer(gameId, playerId);
     const token = AuthService.createToken(gameId, playerId);
     res
       .cookie(TOKEN_COOKIE, token, {
@@ -49,7 +53,7 @@ routes.post(
       .json({
         isSuccess: true,
         gameId,
-        playerId,
+        ...player.getDetails(),
       });
   }
 );
@@ -60,7 +64,11 @@ type JoinGameRequest = {
 };
 type JoinGameResponseSuccess = {
   isSuccess: boolean;
-  playerId: string;
+  gameId: string;
+  id: string;
+  name: string;
+  isAdmin: boolean;
+  isOnline: boolean;
 };
 routes.patch(
   "/join",
@@ -69,7 +77,6 @@ routes.patch(
     res: Response<JoinGameResponseSuccess | ErrorResponse>
   ) => {
     const { gameId, playerName } = req.body || {};
-
     if (!gameId || typeof gameId !== "string") {
       res.status(400).json({
         isSuccess: false,
@@ -85,6 +92,7 @@ routes.patch(
     }
 
     const playerId = GameService.addPlayer(gameId, playerName, false);
+    const player = GameService.getPlayer(gameId, playerId);
     const token = AuthService.createToken(gameId, playerId);
     res
       .cookie(TOKEN_COOKIE, token, {
@@ -96,8 +104,8 @@ routes.patch(
       .status(200)
       .json({
         isSuccess: true,
-        playerId,
-        // token in some cases ?
+        gameId,
+        ...player.getDetails(),
       });
   }
 );

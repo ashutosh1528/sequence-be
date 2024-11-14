@@ -25,7 +25,7 @@ const io = new Server(server, { cors: { origin: "http://localhost:3000" } });
 app.set(SOCKET_IO, io);
 io.on("connection", (socket) => {
   socket.on("createGameRoom", createGameRoom(socket));
-  socket.on("joinGameRoom", joinGameRoom(socket, io));
+  socket.on("joinGameRoom", joinGameRoom(socket));
 });
 app.use("/game", GameRoute);
 

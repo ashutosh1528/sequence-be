@@ -1,9 +1,9 @@
-import { Server, Socket } from "socket.io";
+import { Socket } from "socket.io";
 import * as GameService from "../service/game";
 
 type CreateGameRoomType = {
   data: { gameId: string; playerId: string };
-  callbackFn: ({ roomId }: { roomId: string }) => void;
+  callbackFn: () => void;
 };
 export const createGameRoom =
   (socket: Socket) =>
@@ -13,17 +13,19 @@ export const createGameRoom =
   ) => {
     const roomId = `room_${gameId}`;
     socket.join(roomId);
+
     GameService.setGameRoomId(gameId, roomId);
     GameService.setPlayerSocketId(gameId, playerId, socket.id);
-    callbackFn(GameService.getSocketRoomData(gameId));
+
+    callbackFn();
   };
 
 type JoinGameRoomType = {
   data: { gameId: string; playerId: string };
-  callbackFn: ({ roomId }: { roomId: string }) => void;
+  callbackFn: () => void;
 };
 export const joinGameRoom =
-  (socket: Socket, io: Server) =>
+  (socket: Socket) =>
   (
     { gameId, playerId }: JoinGameRoomType["data"],
     callbackFn: JoinGameRoomType["callbackFn"]
@@ -31,9 +33,11 @@ export const joinGameRoom =
     const socketRoomId = GameService.getGameRoomId(gameId);
     socket.join(socketRoomId);
     GameService.setPlayerSocketId(gameId, playerId, socket.id);
-    io.to(socketRoomId).emit(
-      "playerJoined",
-      GameService.getSocketRoomData(gameId)
-    );
-    callbackFn(GameService.getSocketRoomData(gameId));
+
+    const player = GameService.getPlayer(gameId, playerId);
+    socket.broadcast
+      .to(socketRoomId)
+      .emit("playerJoined", { gameId, ...player.getDetails() });
+
+    callbackFn();
   };

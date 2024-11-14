@@ -10,7 +10,7 @@ export class Player {
     this.id = nanoid();
     this.name = name;
     this.isAdmin = isAdmin;
-    this.isOnline = false;
+    this.isOnline = true;
     this.socketId = "";
   }
 
@@ -20,6 +20,15 @@ export class Player {
 
   public getSocketId() {
     return this.socketId;
+  }
+
+  public getDetails() {
+    return {
+      name: this.name,
+      id: this.id,
+      isAdmin: this.isAdmin,
+      isOnline: this.isOnline,
+    };
   }
 
   public setSocketId(socketId: string) {

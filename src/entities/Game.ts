@@ -86,16 +86,6 @@ export class Game {
     return player.getId();
   }
 
-  public getSocketDetails() {
-    const result: SocketDetails = { roomId: this.roomId, playerSocketIds: {} };
-    Object.values(this.players).forEach((player) => {
-      const playerId = player.getId();
-      const playerSocketId = player.getSocketId();
-      result.playerSocketIds[playerId] = playerSocketId;
-    });
-    return result;
-  }
-
   private getTeamCount() {
     const numberOfPlayers = Object.keys(this.players).length || 0;
     if (numberOfPlayers === 1) return 1;

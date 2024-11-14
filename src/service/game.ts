@@ -35,12 +35,12 @@ export const setPlayerSocketId = (
   player.setSocketId(socketId);
 };
 
-export const getSocketRoomData = (gameId: string) => {
-  const game = InMemoryDataStore.getGame(gameId);
-  return game.getSocketDetails();
-};
-
 export const getGameDetails = (gameId: string) => {
   const game = InMemoryDataStore.getGame(gameId);
   return game.getGameDetails();
+};
+
+export const getPlayer = (gameId: string, playerId: string) => {
+  const game = InMemoryDataStore.getGame(gameId);
+  return game.getPlayer(playerId);
 };
