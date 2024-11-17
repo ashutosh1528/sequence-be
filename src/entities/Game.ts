@@ -23,6 +23,7 @@ export class Game {
   private board: Board;
   private isLocked: boolean;
   private isStarted: boolean;
+  private isActive: boolean;
   private roomId: string;
   constructor(id: string) {
     this.id = id;
@@ -35,6 +36,7 @@ export class Game {
     this.isLocked = false;
     this.isStarted = false;
     this.roomId = "";
+    this.isActive = true;
   }
 
   public getGameDetails() {
@@ -49,6 +51,7 @@ export class Game {
       isLocked: this.isLocked,
       isStarted: this.isStarted,
       roomId: this.roomId,
+      isActive: this.isActive,
     };
   }
 

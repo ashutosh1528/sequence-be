@@ -3,6 +3,7 @@ import * as GameService from "../service/game";
 import * as AuthService from "../service/auth";
 import { authMiddleware } from "../middleware/auth.middleware";
 import { TOKEN_COOKIE } from "../constants";
+import { PlayerDetailsFE } from "src/@types/PlayerDetails.interface";
 
 const routes = Router();
 
@@ -14,14 +15,10 @@ type ErrorResponse = {
 type CreateGameRequest = {
   playerName: string;
 };
-type CreateGameResponseSuccess = {
+interface CreateGameResponseSuccess extends PlayerDetailsFE {
   isSuccess: boolean;
   gameId: string;
-  id: string;
-  name: string;
-  isAdmin: boolean;
-  isOnline: boolean;
-};
+}
 routes.post(
   "/",
   (
@@ -62,15 +59,11 @@ type JoinGameRequest = {
   gameId: string;
   playerName: string;
 };
-type JoinGameResponseSuccess = {
+interface JoinGameResponseSuccess extends PlayerDetailsFE {
   isSuccess: boolean;
   gameId: string;
-  id: string;
-  name: string;
-  isAdmin: boolean;
-  isOnline: boolean;
-};
-routes.patch(
+}
+routes.put(
   "/join",
   (
     req: Request<{}, {}, JoinGameRequest>,
@@ -113,7 +106,7 @@ routes.patch(
 // temp ??
 routes.get("/", authMiddleware, (req: Request, res) => {
   const game = GameService.getGameDetails(req.authParams?.gameId || "");
-  res.status(200).json({ ...game });
+  res.status(200).json({ ...game, playerId: req.authParams?.playerId || "" });
 });
 
 export default routes;
