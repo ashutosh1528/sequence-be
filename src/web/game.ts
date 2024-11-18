@@ -2,8 +2,9 @@ import { Request, Response, Router } from "express";
 import * as GameService from "../service/game";
 import * as AuthService from "../service/auth";
 import { authMiddleware } from "../middleware/auth.middleware";
-import { TOKEN_COOKIE } from "../constants";
+import { SOCKET_IO, TOKEN_COOKIE } from "../constants";
 import { PlayerDetailsFE } from "src/@types/PlayerDetails.interface";
+import { Server } from "socket.io";
 
 const routes = Router();
 
@@ -103,10 +104,48 @@ routes.put(
   }
 );
 
-// temp ??
 routes.get("/", authMiddleware, (req: Request, res) => {
-  const game = GameService.getGameDetails(req.authParams?.gameId || "");
-  res.status(200).json({ ...game, playerId: req.authParams?.playerId || "" });
+  try {
+    const game = GameService.getGameDetails(req.authParams?.gameId || "");
+    // GameService.markPlayerOnlineStatus(
+    //   req.authParams?.gameId || "",
+    //   req.authParams?.playerId || "",
+    //   true
+    // );
+    // const socketRoomId = GameService.getGameRoomId(
+    //   req.authParams?.gameId || ""
+    // );
+    // const io: Server = req.app.get(SOCKET_IO);
+    // io.to(socketRoomId).emit("playerOnlineStatus", {
+    //   playerId: req.authParams?.playerId || "",
+    //   status: true,
+    // });
+    res.status(200).json({ ...game, playerId: req.authParams?.playerId || "" });
+  } catch (e) {}
 });
+
+type MarkReadyStatusType = {
+  status: boolean;
+};
+routes.patch(
+  "/ready",
+  authMiddleware,
+  (req: Request<{}, {}, MarkReadyStatusType>, res) => {
+    const socketRoomId = GameService.getGameRoomId(
+      req.authParams?.gameId || ""
+    );
+    GameService.setPlayerReadyStatus(
+      req.authParams?.gameId || "",
+      req.authParams?.playerId || "",
+      req?.body?.status || false
+    );
+    const io: Server = req.app.get(SOCKET_IO);
+    io.to(socketRoomId).emit("playerReadyStatus", {
+      playerId: req.authParams?.playerId || "",
+      status: req?.body?.status,
+    });
+    res.status(200).json({ success: true });
+  }
+);
 
 export default routes;

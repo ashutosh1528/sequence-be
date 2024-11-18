@@ -66,3 +66,13 @@ export const getPlayer = (gameId: string, playerId: string) => {
   const game = InMemoryDataStore.getGame(gameId);
   return game.getPlayer(playerId);
 };
+
+export const setPlayerReadyStatus = (
+  gameId: string,
+  playerId: string,
+  status: boolean
+) => {
+  const game = InMemoryDataStore.getGame(gameId);
+  const player = game.getPlayer(playerId);
+  player.setIsReady(status);
+};

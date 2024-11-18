@@ -5,6 +5,7 @@ export class Player {
   private name: string;
   private isAdmin: boolean;
   private isOnline: boolean;
+  private isReady: boolean;
   private socketId: string;
   constructor(name: string, isAdmin: boolean) {
     this.id = nanoid();
@@ -12,6 +13,7 @@ export class Player {
     this.isAdmin = isAdmin;
     this.isOnline = true;
     this.socketId = "";
+    this.isReady = false;
   }
 
   public getId() {
@@ -28,7 +30,12 @@ export class Player {
       id: this.id,
       isAdmin: this.isAdmin,
       isOnline: this.isOnline,
+      isReady: this.isReady,
     };
+  }
+
+  public setIsReady(status: boolean) {
+    this.isReady = status;
   }
 
   public setSocketId(socketId: string) {
