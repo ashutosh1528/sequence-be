@@ -6,7 +6,11 @@ import GameRoute from "./web/game";
 import cookieParser from "cookie-parser";
 import { InMemoryDataStore } from "./datastore/InMemoryDataStore";
 import { SOCKET_IO } from "./constants";
-import { createGameRoom, joinGameRoom } from "./web/socket";
+import {
+  createGameRoom,
+  joinGameRoom,
+  markPlayerOnlineStatus,
+} from "./web/socket";
 
 const app = express();
 const port = 9000;
@@ -26,6 +30,7 @@ app.set(SOCKET_IO, io);
 io.on("connection", (socket) => {
   socket.on("createGameRoom", createGameRoom(socket));
   socket.on("joinGameRoom", joinGameRoom(socket));
+  socket.on("markPlayerOnlineStatus", markPlayerOnlineStatus(socket));
 });
 app.use("/game", GameRoute);
 

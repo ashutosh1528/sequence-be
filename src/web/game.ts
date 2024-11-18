@@ -106,20 +106,12 @@ routes.put(
 
 routes.get("/", authMiddleware, (req: Request, res) => {
   try {
+    GameService.markPlayerOnlineStatus(
+      req.authParams?.gameId || "",
+      req.authParams?.playerId || "",
+      true
+    );
     const game = GameService.getGameDetails(req.authParams?.gameId || "");
-    // GameService.markPlayerOnlineStatus(
-    //   req.authParams?.gameId || "",
-    //   req.authParams?.playerId || "",
-    //   true
-    // );
-    // const socketRoomId = GameService.getGameRoomId(
-    //   req.authParams?.gameId || ""
-    // );
-    // const io: Server = req.app.get(SOCKET_IO);
-    // io.to(socketRoomId).emit("playerOnlineStatus", {
-    //   playerId: req.authParams?.playerId || "",
-    //   status: true,
-    // });
     res.status(200).json({ ...game, playerId: req.authParams?.playerId || "" });
   } catch (e) {}
 });

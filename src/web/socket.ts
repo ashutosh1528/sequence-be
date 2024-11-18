@@ -41,3 +41,22 @@ export const joinGameRoom =
 
     callbackFn();
   };
+
+type MarkPlayerOnlineStatus = {
+  gameId: string;
+  playerId: string;
+  status: boolean;
+};
+export const markPlayerOnlineStatus =
+  (socket: Socket) =>
+  ({ gameId, playerId, status }: MarkPlayerOnlineStatus) => {
+    try {
+      const socketRoomId = GameService.getGameRoomId(gameId);
+      GameService.markPlayerOnlineStatus(gameId, playerId, status);
+      if (!status) socket.leave(socketRoomId);
+      else socket.join(socketRoomId);
+      socket.broadcast
+        .to(socketRoomId)
+        .emit("playerOnlineStatus", { playerId, status });
+    } catch (e) {}
+  };

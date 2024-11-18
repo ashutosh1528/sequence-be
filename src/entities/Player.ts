@@ -38,6 +38,10 @@ export class Player {
     this.isReady = status;
   }
 
+  public setIsOnline(status: boolean) {
+    this.isOnline = status;
+  }
+
   public setSocketId(socketId: string) {
     this.socketId = socketId;
   }

@@ -76,3 +76,13 @@ export const setPlayerReadyStatus = (
   const player = game.getPlayer(playerId);
   player.setIsReady(status);
 };
+
+export const markPlayerOnlineStatus = (
+  gameId: string,
+  playerId: string,
+  status: boolean
+) => {
+  const game = InMemoryDataStore.getGame(gameId);
+  const player = game.getPlayer(playerId);
+  player.setIsOnline(status);
+};
