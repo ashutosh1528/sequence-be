@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import * as AuthService from "../service/auth";
 import { TOKEN_COOKIE } from "../constants";
 
+// Need to delete cookies if token is not valid, somehow !
 export const authMiddleware = (
   req: Request,
   res: Response,
