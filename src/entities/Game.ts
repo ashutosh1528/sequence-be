@@ -142,4 +142,8 @@ export class Game {
     });
     this.createPlayerTurnSequence();
   }
+
+  public lockGame(status: boolean) {
+    this.isLocked = status;
+  }
 }

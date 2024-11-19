@@ -85,6 +85,14 @@ routes.put(
       });
     }
 
+    const game = GameService.getGameDetails(gameId);
+    if (game.isLocked) {
+      res.status(400).json({
+        isSuccess: false,
+        errorMessage: "Game is locked.",
+      });
+      return;
+    }
     const playerId = GameService.addPlayer(gameId, playerName, false);
     const player = GameService.getPlayer(gameId, playerId);
     const token = AuthService.createToken(gameId, playerId);
@@ -126,6 +134,14 @@ routes.patch(
     const socketRoomId = GameService.getGameRoomId(
       req.authParams?.gameId || ""
     );
+    const game = GameService.getGameDetails(req?.authParams?.gameId || "");
+    if (game.isLocked) {
+      res.status(400).json({
+        isSuccess: false,
+        errorMessage: "Game is locked.",
+      });
+      return;
+    }
     GameService.setPlayerReadyStatus(
       req.authParams?.gameId || "",
       req.authParams?.playerId || "",
@@ -146,7 +162,7 @@ type KickPlayerRequest = {
 type KickPlayerResponse = {
   isSuccess: boolean;
 };
-routes.delete(
+routes.patch(
   "/kick",
   authMiddleware,
   (
@@ -161,6 +177,13 @@ routes.delete(
       return;
     }
     const game = GameService.getGameDetails(req?.authParams?.gameId || "");
+    if (game.isLocked) {
+      res.status(400).json({
+        isSuccess: false,
+        errorMessage: "Game is locked.",
+      });
+      return;
+    }
     const player = game.players[req?.authParams?.playerId || ""];
     if (player.isAdmin) {
       GameService.removePlayer(
@@ -176,6 +199,70 @@ routes.delete(
       isSuccess: false,
       errorMessage: "Only admin can kick out a player.",
     });
+  }
+);
+
+type LockGameRequest = {
+  status: boolean;
+};
+type LockGameResponse = {
+  isSuccess: boolean;
+};
+routes.patch(
+  "/lock",
+  authMiddleware,
+  (
+    req: Request<{}, {}, LockGameRequest>,
+    res: Response<ErrorResponse | LockGameResponse>
+  ) => {
+    if (typeof req?.body?.status !== "boolean") {
+      res.status(400).json({
+        isSuccess: false,
+        errorMessage: "Status is missing/invalid.",
+      });
+      return;
+    }
+    const game = GameService.getGameDetails(req?.authParams?.gameId || "");
+    const player = game.players[req?.authParams?.playerId || ""];
+    if (!player.isAdmin) {
+      res.status(400).json({
+        isSuccess: false,
+        errorMessage: "Only Admin can lock the game.",
+      });
+      return;
+    }
+    const playerLength = Object.keys(game.players).length;
+    if (playerLength < 2 || playerLength > 4) {
+      res.status(400).json({
+        isSuccess: false,
+        errorMessage: "Game should have 2, 3 or 4 players.",
+      });
+      return;
+    }
+    let readyCount = 0;
+    Object.values(game.players).forEach((player) => {
+      if (player.isReady) readyCount += 1;
+    });
+    if (readyCount !== playerLength) {
+      res.status(400).json({
+        isSuccess: false,
+        errorMessage: "All players are not ready.",
+      });
+      return;
+    }
+    GameService.lockGame(
+      req?.authParams?.gameId || "",
+      req?.body?.status || false
+    );
+    const socketRoomId = GameService.getGameRoomId(
+      req.authParams?.gameId || ""
+    );
+    const io: Server = req.app.get(SOCKET_IO);
+    io.to(socketRoomId).emit("gameLockStatus", {
+      gameId: req.authParams?.gameId || "",
+      status: req?.body?.status,
+    });
+    res.status(200).json({ isSuccess: true });
   }
 );
 

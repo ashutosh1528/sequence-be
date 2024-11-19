@@ -3,4 +3,5 @@ export interface PlayerDetailsFE {
   name: string;
   isAdmin: boolean;
   isOnline: boolean;
+  isReady: boolean;
 }

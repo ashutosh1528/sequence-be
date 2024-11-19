@@ -91,3 +91,8 @@ export const markPlayerOnlineStatus = (
   const player = game.getPlayer(playerId);
   player.setIsOnline(status);
 };
+
+export const lockGame = (gameId: string, status: boolean) => {
+  const game = InMemoryDataStore.getGame(gameId);
+  game.lockGame(status);
+};
