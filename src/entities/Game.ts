@@ -73,6 +73,12 @@ export class Game {
     throw Error("Player does not exist in game.");
   }
 
+  public removePlayer(playerId: string) {
+    const playerToRemove = this.players[playerId];
+    if (!playerToRemove) throw Error("Player is not part of the game.");
+    delete this.players[playerId];
+  }
+
   public getRoomId() {
     return this.roomId;
   }

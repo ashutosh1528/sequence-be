@@ -67,3 +67,18 @@ export const markPlayerOnlineStatus =
       callbackFn();
     } catch (e) {}
   };
+
+type PlayerRemoved = {
+  data: {
+    gameId: string;
+    playerId: string;
+  };
+};
+export const playerRemoved =
+  (socket: Socket) =>
+  ({ gameId, playerId }: PlayerRemoved["data"]) => {
+    try {
+      const socketRoomId = GameService.getGameRoomId(gameId);
+      socket.broadcast.to(socketRoomId).emit("playerRemovedEmit", { playerId });
+    } catch (e) {}
+  };

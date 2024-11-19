@@ -10,6 +10,7 @@ import {
   createGameRoom,
   joinGameRoom,
   markPlayerOnlineStatus,
+  playerRemoved,
 } from "./web/socket";
 
 const app = express();
@@ -31,6 +32,7 @@ io.on("connection", (socket) => {
   socket.on("createGameRoom", createGameRoom(socket));
   socket.on("joinGameRoom", joinGameRoom(socket));
   socket.on("markPlayerOnlineStatus", markPlayerOnlineStatus(socket));
+  socket.on("playerRemoved", playerRemoved(socket));
 });
 app.use("/game", GameRoute);
 

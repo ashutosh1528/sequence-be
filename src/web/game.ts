@@ -140,4 +140,43 @@ routes.patch(
   }
 );
 
+type KickPlayerRequest = {
+  playerId: string;
+};
+type KickPlayerResponse = {
+  isSuccess: boolean;
+};
+routes.delete(
+  "/kick",
+  authMiddleware,
+  (
+    req: Request<{}, {}, KickPlayerRequest>,
+    res: Response<KickPlayerResponse | ErrorResponse>
+  ) => {
+    if (!req?.body?.playerId || typeof req?.body?.playerId !== "string") {
+      res.status(400).json({
+        isSuccess: false,
+        errorMessage: "Player ID is missing/invalid.",
+      });
+      return;
+    }
+    const game = GameService.getGameDetails(req?.authParams?.gameId || "");
+    const player = game.players[req?.authParams?.playerId || ""];
+    if (player.isAdmin) {
+      GameService.removePlayer(
+        req?.authParams?.gameId || "",
+        req?.body?.playerId || ""
+      );
+      res.status(200).json({
+        isSuccess: true,
+      });
+      return;
+    }
+    res.status(400).json({
+      isSuccess: false,
+      errorMessage: "Only admin can kick out a player.",
+    });
+  }
+);
+
 export default routes;

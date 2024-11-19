@@ -18,6 +18,11 @@ export const addPlayer = (
   return playerId;
 };
 
+export const removePlayer = (gameId: string, playerId: string) => {
+  const game = InMemoryDataStore.getGame(gameId);
+  game.removePlayer(playerId);
+};
+
 export const setGameRoomId = (gameId: string, roomId: string) => {
   const game = InMemoryDataStore.getGame(gameId);
   game.setRoomId(roomId);
