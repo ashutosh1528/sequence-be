@@ -1,4 +1,4 @@
-import { Socket } from "socket.io";
+import { Server, Socket } from "socket.io";
 import * as GameService from "../service/game";
 
 type CreateGameRoomType = {
@@ -80,5 +80,14 @@ export const playerRemoved =
     try {
       const socketRoomId = GameService.getGameRoomId(gameId);
       socket.broadcast.to(socketRoomId).emit("playerRemovedEmit", { playerId });
+    } catch (e) {}
+  };
+
+export const exitGame =
+  (io: Server) =>
+  ({ gameId, playerId }: PlayerRemoved["data"]) => {
+    try {
+      const socketRoomId = GameService.getGameRoomId(gameId);
+      io.to(socketRoomId).emit("playerRemovedEmit", { playerId });
     } catch (e) {}
   };

@@ -8,6 +8,7 @@ import { InMemoryDataStore } from "./datastore/InMemoryDataStore";
 import { SOCKET_IO } from "./constants";
 import {
   createGameRoom,
+  exitGame,
   joinGameRoom,
   markPlayerOnlineStatus,
   playerRemoved,
@@ -33,6 +34,7 @@ io.on("connection", (socket) => {
   socket.on("joinGameRoom", joinGameRoom(socket));
   socket.on("markPlayerOnlineStatus", markPlayerOnlineStatus(socket));
   socket.on("playerRemoved", playerRemoved(socket));
+  socket.on("exitGame", exitGame(io));
 });
 app.use("/game", GameRoute);
 

@@ -266,4 +266,21 @@ routes.patch(
   }
 );
 
+type ExitGameResponse = {
+  isSuccess: boolean;
+};
+routes.patch(
+  "/exit",
+  authMiddleware,
+  (req: Request, res: Response<ErrorResponse | ExitGameResponse>) => {
+    GameService.removePlayer(
+      req?.authParams?.gameId || "",
+      req?.authParams?.playerId || ""
+    );
+    res.status(200).json({
+      isSuccess: true,
+    });
+  }
+);
+
 export default routes;
