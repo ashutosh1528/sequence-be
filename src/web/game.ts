@@ -260,26 +260,18 @@ routes.patch(
       req.authParams?.gameId || ""
     );
     const io: Server = req.app.get(SOCKET_IO);
+    let teams = {};
     if (req?.body?.status === false) {
       // remove teams
       GameService.removeTeams(req?.authParams?.gameId || "");
-      io.to(socketRoomId).emit("teamsCreated", {
-        gameId: req.authParams?.gameId || "",
-        teams: {},
-      });
     } else {
-      const teams = GameService.createTeams(req?.authParams?.gameId || "");
-      io.to(socketRoomId).emit("teamsCreated", {
-        gameId: req.authParams?.gameId || "",
-        teams: {
-          ...teams,
-        },
-      });
+      teams = GameService.createTeams(req?.authParams?.gameId || "");
     }
 
     io.to(socketRoomId).emit("gameLockStatus", {
       gameId: req.authParams?.gameId || "",
-      status: req?.body?.status,
+      lockStatus: req?.body?.status,
+      teams,
     });
     res.status(200).json({ isSuccess: true });
   }
