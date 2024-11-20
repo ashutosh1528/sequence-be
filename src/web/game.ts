@@ -26,7 +26,7 @@ routes.post(
     req: Request<{}, {}, CreateGameRequest>,
     res: Response<CreateGameResponseSuccess | ErrorResponse>
   ) => {
-    const { playerName } = req.body || {};
+    const { playerName } = req?.body || {};
 
     if (!playerName || typeof playerName !== "string") {
       res.status(400).json({
@@ -70,7 +70,7 @@ routes.put(
     req: Request<{}, {}, JoinGameRequest>,
     res: Response<JoinGameResponseSuccess | ErrorResponse>
   ) => {
-    const { gameId, playerName } = req.body || {};
+    const { gameId, playerName } = req?.body || {};
     if (!gameId || typeof gameId !== "string") {
       res.status(400).json({
         isSuccess: false,
@@ -114,13 +114,10 @@ routes.put(
 
 routes.get("/", authMiddleware, (req: Request, res) => {
   try {
-    GameService.markPlayerOnlineStatus(
-      req.authParams?.gameId || "",
-      req.authParams?.playerId || "",
-      true
-    );
-    const game = GameService.getGameDetails(req.authParams?.gameId || "");
-    res.status(200).json({ ...game, playerId: req.authParams?.playerId || "" });
+    const { gameId = "", playerId = "" } = req?.authParams || {};
+    GameService.markPlayerOnlineStatus(gameId, playerId, true);
+    const game = GameService.getGameDetails(gameId);
+    res.status(200).json({ ...game, playerId: playerId });
   } catch (e) {}
 });
 
@@ -131,10 +128,17 @@ routes.patch(
   "/ready",
   authMiddleware,
   (req: Request<{}, {}, MarkReadyStatusType>, res) => {
-    const socketRoomId = GameService.getGameRoomId(
-      req.authParams?.gameId || ""
-    );
-    const game = GameService.getGameDetails(req?.authParams?.gameId || "");
+    const { gameId = "", playerId = "" } = req?.authParams || {};
+    const { status } = req?.body || {};
+    if (typeof status !== "boolean") {
+      res.status(400).json({
+        isSuccess: false,
+        errorMessage: "Status is missing/invalid.",
+      });
+      return;
+    }
+    const socketRoomId = GameService.getGameRoomId(gameId);
+    const game = GameService.getGameDetails(gameId);
     if (game.isLocked) {
       res.status(400).json({
         isSuccess: false,
@@ -142,15 +146,11 @@ routes.patch(
       });
       return;
     }
-    GameService.setPlayerReadyStatus(
-      req.authParams?.gameId || "",
-      req.authParams?.playerId || "",
-      req?.body?.status || false
-    );
+    GameService.setPlayerReadyStatus(gameId, playerId, status);
     const io: Server = req.app.get(SOCKET_IO);
     io.to(socketRoomId).emit("playerReadyStatus", {
-      playerId: req.authParams?.playerId || "",
-      status: req?.body?.status,
+      playerId: playerId,
+      status: status,
     });
     res.status(200).json({ success: true });
   }
@@ -169,14 +169,16 @@ routes.patch(
     req: Request<{}, {}, KickPlayerRequest>,
     res: Response<KickPlayerResponse | ErrorResponse>
   ) => {
-    if (!req?.body?.playerId || typeof req?.body?.playerId !== "string") {
+    const { playerId: playerIdBody } = req?.body || {};
+    const { gameId = "", playerId: playerIdAuth = "" } = req?.authParams || {};
+    if (!playerIdBody || typeof playerIdBody !== "string") {
       res.status(400).json({
         isSuccess: false,
         errorMessage: "Player ID is missing/invalid.",
       });
       return;
     }
-    const game = GameService.getGameDetails(req?.authParams?.gameId || "");
+    const game = GameService.getGameDetails(gameId);
     if (game.isLocked) {
       res.status(400).json({
         isSuccess: false,
@@ -184,12 +186,9 @@ routes.patch(
       });
       return;
     }
-    const player = game.players[req?.authParams?.playerId || ""];
+    const player = game.players[playerIdAuth];
     if (player.isAdmin) {
-      GameService.removePlayer(
-        req?.authParams?.gameId || "",
-        req?.body?.playerId || ""
-      );
+      GameService.removePlayer(gameId, playerIdBody);
       res.status(200).json({
         isSuccess: true,
       });
@@ -202,8 +201,6 @@ routes.patch(
   }
 );
 
-// Should create teams, give cards and setup board --- When true
-// Delete creaed teams and deck and board --- When false
 type LockGameRequest = {
   status: boolean;
 };
@@ -217,15 +214,17 @@ routes.patch(
     req: Request<{}, {}, LockGameRequest>,
     res: Response<ErrorResponse | LockGameResponse>
   ) => {
-    if (typeof req?.body?.status !== "boolean") {
+    const status = req?.body?.status;
+    if (typeof status !== "boolean") {
       res.status(400).json({
         isSuccess: false,
         errorMessage: "Status is missing/invalid.",
       });
       return;
     }
-    const game = GameService.getGameDetails(req?.authParams?.gameId || "");
-    const player = game.players[req?.authParams?.playerId || ""];
+    const { gameId = "", playerId = "" } = req?.authParams || {};
+    const game = GameService.getGameDetails(gameId);
+    const player = game.players[playerId];
     if (!player.isAdmin) {
       res.status(400).json({
         isSuccess: false,
@@ -252,25 +251,19 @@ routes.patch(
       });
       return;
     }
-    GameService.lockGame(
-      req?.authParams?.gameId || "",
-      req?.body?.status || false
-    );
-    const socketRoomId = GameService.getGameRoomId(
-      req.authParams?.gameId || ""
-    );
+    GameService.lockGame(gameId, status || false);
+    const socketRoomId = GameService.getGameRoomId(gameId);
     const io: Server = req.app.get(SOCKET_IO);
     let teams = {};
-    if (req?.body?.status === false) {
-      // remove teams
-      GameService.removeTeams(req?.authParams?.gameId || "");
+    if (status === false) {
+      GameService.removeTeams(gameId);
     } else {
-      teams = GameService.createTeams(req?.authParams?.gameId || "");
+      teams = GameService.createTeams(gameId);
     }
 
     io.to(socketRoomId).emit("gameLockStatus", {
-      gameId: req.authParams?.gameId || "",
-      lockStatus: req?.body?.status,
+      gameId: gameId,
+      lockStatus: status,
       teams,
     });
     res.status(200).json({ isSuccess: true });
@@ -284,10 +277,8 @@ routes.patch(
   "/exit",
   authMiddleware,
   (req: Request, res: Response<ErrorResponse | ExitGameResponse>) => {
-    GameService.removePlayer(
-      req?.authParams?.gameId || "",
-      req?.authParams?.playerId || ""
-    );
+    const { gameId = "", playerId = "" } = req?.authParams || {};
+    GameService.removePlayer(gameId, playerId);
     res.status(200).json({
       isSuccess: true,
     });
