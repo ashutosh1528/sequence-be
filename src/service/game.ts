@@ -2,6 +2,7 @@ import { PlayerDetailsFE } from "../@types/PlayerDetails.interface";
 import { GameDetailsFE } from "../@types/GameDetails.interface";
 import { InMemoryDataStore } from "../datastore/InMemoryDataStore";
 import getGameStatus from "../utils/getGameStatus";
+import { TeamDetailsFE } from "src/@types/TeamDetails.interface";
 
 export const createGame = () => {
   const game = InMemoryDataStore.createGame();
@@ -57,11 +58,18 @@ export const getGameDetails = (gameId: string): GameDetailsFE => {
       details.isLocked
     ),
     players: {},
+    teams: {},
   };
   Object.values(details.players).forEach((player) => {
     const playerDetails = player.getDetails();
     (result.players as Record<string, PlayerDetailsFE>)[playerDetails.id] = {
       ...playerDetails,
+    };
+  });
+  Object.values(details.teams).forEach((team) => {
+    const teamDetails = team.getTeam();
+    (result.teams as Record<string, TeamDetailsFE>)[teamDetails.id] = {
+      ...teamDetails,
     };
   });
   return result;
@@ -95,4 +103,15 @@ export const markPlayerOnlineStatus = (
 export const lockGame = (gameId: string, status: boolean) => {
   const game = InMemoryDataStore.getGame(gameId);
   game.lockGame(status);
+};
+
+export const createTeams = (gameId: string) => {
+  const game = InMemoryDataStore.getGame(gameId);
+  game.createTeams();
+  return game.getTeams();
+};
+
+export const removeTeams = (gameId: string) => {
+  const game = InMemoryDataStore.getGame(gameId);
+  game.removeTeams();
 };

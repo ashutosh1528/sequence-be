@@ -202,6 +202,8 @@ routes.patch(
   }
 );
 
+// Should create teams, give cards and setup board --- When true
+// Delete creaed teams and deck and board --- When false
 type LockGameRequest = {
   status: boolean;
 };
@@ -258,6 +260,23 @@ routes.patch(
       req.authParams?.gameId || ""
     );
     const io: Server = req.app.get(SOCKET_IO);
+    if (req?.body?.status === false) {
+      // remove teams
+      GameService.removeTeams(req?.authParams?.gameId || "");
+      io.to(socketRoomId).emit("teamsCreated", {
+        gameId: req.authParams?.gameId || "",
+        teams: {},
+      });
+    } else {
+      const teams = GameService.createTeams(req?.authParams?.gameId || "");
+      io.to(socketRoomId).emit("teamsCreated", {
+        gameId: req.authParams?.gameId || "",
+        teams: {
+          ...teams,
+        },
+      });
+    }
+
     io.to(socketRoomId).emit("gameLockStatus", {
       gameId: req.authParams?.gameId || "",
       status: req?.body?.status,

@@ -59,10 +59,6 @@ export class Game {
     return this.id;
   }
 
-  public getCard() {
-    return this.deck.getCard();
-  }
-
   public getDeck() {
     return this.deck.getCardPile();
   }
@@ -71,6 +67,14 @@ export class Game {
     const player = this.players[playerId];
     if (player) return player;
     throw Error("Player does not exist in game.");
+  }
+
+  public addPlayer(name: string, isAdmin: boolean) {
+    if (Object.keys(this.players).length >= 4)
+      throw Error("Game is already full.");
+    const player = new Player(name, isAdmin);
+    this.players[player.getId()] = player;
+    return player.getId();
   }
 
   public removePlayer(playerId: string) {
@@ -85,14 +89,6 @@ export class Game {
 
   public setRoomId(roomId: string) {
     this.roomId = roomId;
-  }
-
-  public addPlayer(name: string, isAdmin: boolean) {
-    if (Object.keys(this.players).length >= 4)
-      throw Error("Game is already full.");
-    const player = new Player(name, isAdmin);
-    this.players[player.getId()] = player;
-    return player.getId();
   }
 
   private getTeamCount() {
@@ -141,6 +137,23 @@ export class Game {
       this.teams[teamObj.getId()] = teamObj;
     });
     this.createPlayerTurnSequence();
+  }
+
+  public removeTeams() {
+    this.teams = {};
+    this.playerTurnSequence = [];
+  }
+
+  public getTeams() {
+    return this.teams;
+  }
+
+  // To assign on start
+  public addCardToPlayer(playerId: string) {
+    const player = this.players[playerId];
+    if (player) {
+      player.addCard(this.deck);
+    }
   }
 
   public lockGame(status: boolean) {

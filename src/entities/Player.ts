@@ -1,4 +1,5 @@
 import { nanoid } from "nanoid";
+import { Deck } from "./Deck";
 
 export class Player {
   private id: string;
@@ -7,6 +8,7 @@ export class Player {
   private isOnline: boolean;
   private isReady: boolean;
   private socketId: string;
+  private cards: string[];
   constructor(name: string, isAdmin: boolean) {
     this.id = nanoid();
     this.name = name;
@@ -14,6 +16,7 @@ export class Player {
     this.isOnline = true;
     this.socketId = "";
     this.isReady = false;
+    this.cards = [];
   }
 
   public getId() {
@@ -44,5 +47,10 @@ export class Player {
 
   public setSocketId(socketId: string) {
     this.socketId = socketId;
+  }
+
+  public addCard(deck: Deck) {
+    const card = deck.getCard();
+    this.cards.push(card);
   }
 }

@@ -23,4 +23,13 @@ export class Team {
   public setColor(color: string) {
     this.color = color;
   }
+
+  public getTeam() {
+    return {
+      id: this.id,
+      players: this.players,
+      score: this.score,
+      color: this.color,
+    };
+  }
 }
