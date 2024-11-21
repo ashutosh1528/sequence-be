@@ -60,7 +60,7 @@ export class Game {
   }
 
   public getDeck() {
-    return this.deck.getCardPile();
+    return this.deck;
   }
 
   public getPlayer(playerId: string) {
@@ -148,15 +148,15 @@ export class Game {
     return this.teams;
   }
 
-  // To assign on start
-  public addCardToPlayer(playerId: string) {
-    const player = this.players[playerId];
-    if (player) {
-      player.addCard(this.deck);
-    }
-  }
-
   public lockGame(status: boolean) {
     this.isLocked = status;
+  }
+
+  public getPlayers() {
+    return this.players;
+  }
+
+  public setIsStart(status: boolean) {
+    this.isStarted = status;
   }
 }

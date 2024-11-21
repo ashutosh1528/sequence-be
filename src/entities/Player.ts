@@ -49,8 +49,11 @@ export class Player {
     this.socketId = socketId;
   }
 
-  public addCard(deck: Deck) {
-    const card = deck.getCard();
+  public addCard(card: string) {
     this.cards.push(card);
+  }
+
+  public getCards() {
+    return this.cards;
   }
 }

@@ -115,3 +115,35 @@ export const removeTeams = (gameId: string) => {
   const game = InMemoryDataStore.getGame(gameId);
   game.removeTeams();
 };
+
+export const assignCards = (gameId: string) => {
+  const game = InMemoryDataStore.getGame(gameId);
+  const deck = game.getDeck();
+  const players = game.getPlayers();
+  const allPlayerObj = Object.values(players);
+  let i = 0;
+  while (i < 5) {
+    allPlayerObj.forEach((player) => {
+      const card = deck.getCard();
+      player.addCard(card);
+    });
+    i += 1;
+  }
+};
+
+export const startGame = (gameId: string) => {
+  const game = InMemoryDataStore.getGame(gameId);
+  game.setIsStart(true);
+};
+
+// hack
+export const stopGame = (gameId: string) => {
+  const game = InMemoryDataStore.getGame(gameId);
+  game.setIsStart(false);
+};
+
+export const getPlayerCards = (gameId: string, playerId: string) => {
+  const game = InMemoryDataStore.getGame(gameId);
+  const player = game.getPlayer(playerId);
+  return player.getCards();
+};

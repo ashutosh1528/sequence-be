@@ -285,4 +285,67 @@ routes.patch(
   }
 );
 
+routes.patch("/start", authMiddleware, (req, res) => {
+  const { playerId = "", gameId = "" } = req?.authParams || {};
+  const game = GameService.getGameDetails(gameId);
+  if (!game.isLocked) {
+    res.status(400).json({
+      isSuccess: false,
+      errorMessage: "Game should be locked before starting.",
+    });
+    return;
+  }
+  if (game.isStarted) {
+    res.status(400).json({
+      isSuccess: false,
+      errorMessage: "Game is already started.",
+    });
+    return;
+  }
+  const player = game.players[playerId];
+  if (!player.isAdmin) {
+    res.status(400).json({
+      isSuccess: false,
+      errorMessage: "Only admin can start the game.",
+    });
+    return;
+  }
+  GameService.startGame(gameId);
+  GameService.assignCards(gameId);
+  const socketRoomId = GameService.getGameRoomId(gameId);
+  const io: Server = req.app.get(SOCKET_IO);
+  io.to(socketRoomId).emit("gameStarted", {
+    isStarted: true,
+  });
+  res.status(200).json({
+    isSuccess: true,
+  });
+});
+
+type GetCardsResponse = {
+  isSuccess: boolean;
+  cards: string[];
+};
+routes.get(
+  "/getCards",
+  authMiddleware,
+  (req, res: Response<ErrorResponse | GetCardsResponse>) => {
+    const { gameId = "", playerId = "" } = req?.authParams || {};
+    const cards = GameService.getPlayerCards(gameId, playerId);
+    res.status(200).json({
+      isSuccess: true,
+      cards,
+    });
+  }
+);
+
+// hack API for now !
+routes.post("/hack", authMiddleware, (req, res) => {
+  const { gameId = "" } = req?.authParams || {};
+  GameService.stopGame(gameId);
+  res.status(200).json({
+    isSuccess: true,
+  });
+});
+
 export default routes;
