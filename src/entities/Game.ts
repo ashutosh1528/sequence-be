@@ -47,7 +47,6 @@ export class Game {
       teams: this.teams,
       playerTurnIndex: this.playerTurnIndex,
       playerTurnSequence: this.playerTurnSequence,
-      board: this.board,
       isLocked: this.isLocked,
       isStarted: this.isStarted,
       roomId: this.roomId,
@@ -158,5 +157,9 @@ export class Game {
 
   public setIsStart(status: boolean) {
     this.isStarted = status;
+  }
+
+  public getBoard() {
+    return this.board;
   }
 }
