@@ -5,6 +5,7 @@ import { authMiddleware } from "../middleware/auth.middleware";
 import { SOCKET_IO, TOKEN_COOKIE } from "../constants";
 import { PlayerDetailsFE } from "src/@types/PlayerDetails.interface";
 import { Server } from "socket.io";
+import { Cell } from "src/@types/Cell.type";
 
 const routes = Router();
 
@@ -335,6 +336,23 @@ routes.get(
     res.status(200).json({
       isSuccess: true,
       cards,
+    });
+  }
+);
+
+type GetBoardResponse = {
+  isSuccess: boolean;
+  board: Cell[][];
+};
+routes.get(
+  "/getBoard",
+  authMiddleware,
+  (req, res: Response<ErrorResponse | GetBoardResponse>) => {
+    const { gameId = "" } = req?.authParams || {};
+    const board = GameService.getBoard(gameId);
+    res.status(200).json({
+      isSuccess: true,
+      board,
     });
   }
 );

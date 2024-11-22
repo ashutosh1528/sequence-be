@@ -147,3 +147,9 @@ export const getPlayerCards = (gameId: string, playerId: string) => {
   const player = game.getPlayer(playerId);
   return player.getCards();
 };
+
+export const getBoard = (gameId: string) => {
+  const game = InMemoryDataStore.getGame(gameId);
+  const board = game.getBoard();
+  return board.getBoard();
+};
