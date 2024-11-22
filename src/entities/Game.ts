@@ -162,4 +162,22 @@ export class Game {
   public getBoard() {
     return this.board;
   }
+
+  public getPlayerTurnIndex() {
+    return this.playerTurnIndex;
+  }
+
+  public getPlayerTurnSequence() {
+    return this.playerTurnSequence;
+  }
+
+  public getPlayerTeam(playerId: string) {
+    const teams = Object.values(this.teams).filter((team) =>
+      team.getPlayers().includes(playerId)
+    );
+    if (teams.length === 0) {
+      throw Error("No team found for the player in the game.");
+    }
+    return teams[0];
+  }
 }

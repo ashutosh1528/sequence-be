@@ -3,6 +3,7 @@ import cors from "cors";
 import http from "http";
 import { Server } from "socket.io";
 import GameRoute from "./web/game";
+import PlayerRoute from "./web/player";
 import cookieParser from "cookie-parser";
 import { InMemoryDataStore } from "./datastore/InMemoryDataStore";
 import { SOCKET_IO } from "./constants";
@@ -37,6 +38,7 @@ io.on("connection", (socket) => {
   socket.on("exitGame", exitGame(io));
 });
 app.use("/game", GameRoute);
+app.use("/player", PlayerRoute);
 
 InMemoryDataStore.getInstance();
 

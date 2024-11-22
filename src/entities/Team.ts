@@ -32,4 +32,8 @@ export class Team {
       color: this.color,
     };
   }
+
+  public getTeamId() {
+    return this.id;
+  }
 }

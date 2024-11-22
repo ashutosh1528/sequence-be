@@ -53,6 +53,13 @@ export class Player {
     this.cards.push(card);
   }
 
+  public removeCard(cardToRemove: string) {
+    let idx = this.cards.findIndex((card) => card === cardToRemove);
+    if (idx !== -1) {
+      this.cards.splice(idx, 1);
+    }
+  }
+
   public getCards() {
     return this.cards;
   }

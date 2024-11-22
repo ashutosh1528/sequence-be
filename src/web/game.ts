@@ -352,7 +352,7 @@ routes.get(
     const board = GameService.getBoard(gameId);
     res.status(200).json({
       isSuccess: true,
-      board,
+      board: board.getBoard(),
     });
   }
 );

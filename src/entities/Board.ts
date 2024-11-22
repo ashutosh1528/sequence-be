@@ -10,4 +10,8 @@ export class Board {
   public getBoard() {
     return this.gameBoard;
   }
+
+  public placeCoin(row: number, column: number, teamId: string) {
+    this.gameBoard[row][column].teamId = teamId;
+  }
 }

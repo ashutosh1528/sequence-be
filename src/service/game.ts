@@ -151,5 +151,20 @@ export const getPlayerCards = (gameId: string, playerId: string) => {
 export const getBoard = (gameId: string) => {
   const game = InMemoryDataStore.getGame(gameId);
   const board = game.getBoard();
-  return board.getBoard();
+  return board;
+};
+
+export const getPlayerTurnIndex = (gameId: string) => {
+  const game = InMemoryDataStore.getGame(gameId);
+  return game.getPlayerTurnIndex();
+};
+
+export const getPlayerTurnSequence = (gameId: string) => {
+  const game = InMemoryDataStore.getGame(gameId);
+  return game.getPlayerTurnSequence();
+};
+
+export const getPlayerTeam = (gameId: string, playerId: string) => {
+  const game = InMemoryDataStore.getGame(gameId);
+  return game.getPlayerTeam(playerId);
 };
