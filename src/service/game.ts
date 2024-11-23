@@ -53,6 +53,8 @@ export const getGameDetails = (gameId: string): GameDetailsFE => {
     isStarted: details.isStarted,
     isLocked: details.isLocked,
     isCoinPlacedInTurn: details.isCoinPlacedInTurn,
+    playerTurnSequence: details.playerTurnSequence,
+    playerTurnIndex: details.playerTurnIndex,
     gameStatus: getGameStatus(
       details.isActive,
       details.isStarted,

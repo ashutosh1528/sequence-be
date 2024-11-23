@@ -224,7 +224,7 @@ routes.patch(
       return;
     }
     const { gameId = "", playerId = "" } = req?.authParams || {};
-    const game = GameService.getGameDetails(gameId);
+    let game = GameService.getGameDetails(gameId);
     const player = game.players[playerId];
     if (!player.isAdmin) {
       res.status(400).json({
@@ -262,10 +262,14 @@ routes.patch(
       teams = GameService.createTeams(gameId);
     }
 
+    game = GameService.getGameDetails(gameId);
+
     io.to(socketRoomId).emit("gameLockStatus", {
       gameId: gameId,
       lockStatus: status,
       teams,
+      playerTurnIndex: game.playerTurnIndex,
+      playerTurnSequence: game.playerTurnSequence,
     });
     res.status(200).json({ isSuccess: true });
   }
