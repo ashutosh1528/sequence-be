@@ -10,4 +10,5 @@ export type GameDetailsFE = {
   players: Record<string, PlayerDetailsFE>;
   gameStatus: GAME_STATUS;
   teams: Record<string, TeamDetailsFE>;
+  isCoinPlacedInTurn: boolean;
 };

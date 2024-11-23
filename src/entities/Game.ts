@@ -9,10 +9,6 @@ import TEAM_COLORS from "../constants/TEAM_COLORS";
  * 3 players - 3 teams
  * 4 players - 2 teams
  */
-type SocketDetails = {
-  roomId: string;
-  playerSocketIds: Record<string, string>;
-};
 export class Game {
   private id: string;
   private deck: Deck;
@@ -20,6 +16,7 @@ export class Game {
   private teams: Record<string, Team>;
   private playerTurnIndex: number;
   private playerTurnSequence: string[];
+  private isCoinPlacedInTurn: boolean;
   private board: Board;
   private isLocked: boolean;
   private isStarted: boolean;
@@ -37,6 +34,7 @@ export class Game {
     this.isStarted = false;
     this.roomId = "";
     this.isActive = true;
+    this.isCoinPlacedInTurn = false;
   }
 
   public getGameDetails() {
@@ -51,6 +49,7 @@ export class Game {
       isStarted: this.isStarted,
       roomId: this.roomId,
       isActive: this.isActive,
+      isCoinPlacedInTurn: this.isCoinPlacedInTurn,
     };
   }
 
@@ -179,5 +178,9 @@ export class Game {
       throw Error("No team found for the player in the game.");
     }
     return teams[0];
+  }
+
+  public setIsCoinPlacedInTurn(status: boolean) {
+    this.isCoinPlacedInTurn = status;
   }
 }

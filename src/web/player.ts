@@ -79,6 +79,8 @@ routes.patch(
       GameService.getPlayerTeam(gameId, playerId)?.getTeamId() || "";
     board.placeCoin(x, y, playerTeamId);
 
+    GameService.setIsCoinPlacedInTurn(gameId, true);
+
     const socketRoomId = GameService.getGameRoomId(gameId);
     const io: Server = req.app.get(SOCKET_IO);
     io.to(socketRoomId).emit("coinPlaced", {
@@ -95,5 +97,22 @@ routes.patch(
     });
   }
 );
+
+routes.patch("/getCard", authMiddleware, (req, res) => {
+  const { gameId = "", playerId = "" } = req?.authParams || {};
+  const player = GameService.getPlayer(gameId, playerId);
+  const playerCards = player.getCards();
+  if (playerCards.length >= 5) {
+    res.status(400).json({
+      isSuccess: false,
+      errorMessage: "You already have 5 cards",
+    });
+    return;
+  }
+  GameService.assignCardToPlayer(gameId, playerId);
+  res.status(200).json({
+    isSuccess: true,
+  });
+});
 
 export default routes;
