@@ -1,10 +1,11 @@
-import { Request, Response, Router } from "express";
+import { Request, Router } from "express";
+import { Server } from "socket.io";
 import * as GameService from "../service/game";
 import { authMiddleware } from "../middleware/auth.middleware";
 import validateCardFace from "../utils/validateCardFace";
 import validateCellId from "../utils/validateCellId";
 import { SOCKET_IO } from "../constants";
-import { Server } from "socket.io";
+import getWildCardInfo from "../utils/getWildCardInfo";
 
 const routes = Router();
 
@@ -51,20 +52,6 @@ routes.patch(
     const idParts = cellId.split(".");
     const [x, y] = [parseInt(idParts[0], 10), parseInt(idParts[1], 10)];
     const boardCell = board.getBoard()[x][y];
-    if (boardCell.teamId) {
-      res.status(400).json({
-        isSuccess: false,
-        errorMessage: "Coin is already placed in this location.",
-      });
-      return;
-    }
-    if (boardCell.face !== cardFace) {
-      res.status(400).json({
-        isSuccess: false,
-        errorMessage: "Cannot play this card in this location.",
-      });
-      return;
-    }
 
     if (boardCell.face === "JJ") {
       res.status(400).json({
@@ -74,10 +61,44 @@ routes.patch(
       return;
     }
 
+    const wildCardInfo = getWildCardInfo(cardFace);
+    const isCellEmpty = !boardCell.teamId;
+
+    if (!wildCardInfo) {
+      if (!isCellEmpty) {
+        res.status(400).json({
+          isSuccess: false,
+          errorMessage: "Coin is already placed in this location.",
+        });
+        return;
+      }
+      if (boardCell.face !== cardFace) {
+        res.status(400).json({
+          isSuccess: false,
+          errorMessage: "Cannot play this card in this location.",
+        });
+        return;
+      }
+    }
+    if (wildCardInfo === "PLAY_WILDCARD" && !isCellEmpty) {
+      res.status(400).json({
+        isSuccess: false,
+        errorMessage: "Coin is already placed in this location.",
+      });
+      return;
+    }
+    if (wildCardInfo === "REMOVE_WILDCARD" && isCellEmpty) {
+      res.status(400).json({
+        isSuccess: false,
+        errorMessage: "Cannot play this card in this location.",
+      });
+      return;
+    }
+
     // Handle Jacks!
     const playerTeamId =
       GameService.getPlayerTeam(gameId, playerId)?.getTeamId() || "";
-    board.placeCoin(x, y, playerTeamId);
+    const placedTeamId = board.placeCoin(x, y, playerTeamId, wildCardInfo);
 
     GameService.setIsCoinPlacedInTurn(gameId, true);
 
@@ -85,7 +106,7 @@ routes.patch(
     const io: Server = req.app.get(SOCKET_IO);
     io.to(socketRoomId).emit("coinPlaced", {
       cellId,
-      teamId: playerTeamId,
+      teamId: placedTeamId,
       cardFace,
     });
 

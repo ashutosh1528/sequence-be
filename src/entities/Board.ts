@@ -11,7 +11,14 @@ export class Board {
     return this.gameBoard;
   }
 
-  public placeCoin(row: number, column: number, teamId: string) {
-    this.gameBoard[row][column].teamId = teamId;
+  public placeCoin(
+    row: number,
+    column: number,
+    teamId: string,
+    wildCardInfo: "" | "REMOVE_WILDCARD" | "PLAY_WILDCARD"
+  ) {
+    const placedTeamId = wildCardInfo === "REMOVE_WILDCARD" ? "" : teamId;
+    this.gameBoard[row][column].teamId = placedTeamId;
+    return placedTeamId;
   }
 }
