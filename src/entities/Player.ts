@@ -8,6 +8,7 @@ export class Player {
   private isOnline: boolean;
   private isReady: boolean;
   private socketId: string;
+  private teamId: string;
   private cards: string[];
   constructor(name: string, isAdmin: boolean) {
     this.id = nanoid();
@@ -17,6 +18,7 @@ export class Player {
     this.socketId = "";
     this.isReady = false;
     this.cards = [];
+    this.teamId = "";
   }
 
   public getId() {
@@ -34,6 +36,7 @@ export class Player {
       isAdmin: this.isAdmin,
       isOnline: this.isOnline,
       isReady: this.isReady,
+      teamId: this.teamId,
     };
   }
 
@@ -47,6 +50,10 @@ export class Player {
 
   public setSocketId(socketId: string) {
     this.socketId = socketId;
+  }
+
+  public setTeamId(id: string) {
+    this.teamId = id;
   }
 
   public addCard(card: string) {

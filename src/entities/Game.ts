@@ -136,6 +136,9 @@ export class Game {
       const teamObj = new Team(team);
       teamObj.setColor(TEAM_COLORS[idx]);
       this.teams[teamObj.getId()] = teamObj;
+      teamObj.getPlayers().forEach((playerId) => {
+        this.players[playerId].setTeamId(teamObj.getId());
+      });
     });
     this.createPlayerTurnSequence();
   }
@@ -143,6 +146,9 @@ export class Game {
   public removeTeams() {
     this.teams = {};
     this.playerTurnSequence = [];
+    Object.values(this.players).forEach((player) => {
+      player.setTeamId("");
+    });
   }
 
   public getTeams() {
