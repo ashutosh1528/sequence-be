@@ -11,6 +11,7 @@ export type GameDetailsFE = {
   gameStatus: GAME_STATUS;
   teams: Record<string, TeamDetailsFE>;
   isCoinPlacedInTurn: boolean;
+  isCardPickedInTurn: boolean;
   playerTurnSequence: string[];
   playerTurnIndex: number;
 };

@@ -53,6 +53,7 @@ export const getGameDetails = (gameId: string): GameDetailsFE => {
     isStarted: details.isStarted,
     isLocked: details.isLocked,
     isCoinPlacedInTurn: details.isCoinPlacedInTurn,
+    isCardPickedInTurn: details.isCardPickedInTurn,
     playerTurnSequence: details.playerTurnSequence,
     playerTurnIndex: details.playerTurnIndex,
     gameStatus: getGameStatus(
@@ -183,4 +184,14 @@ export const getPlayerTeam = (gameId: string, playerId: string) => {
 export const setIsCoinPlacedInTurn = (gameId: string, status: boolean) => {
   const game = InMemoryDataStore.getGame(gameId);
   game.setIsCoinPlacedInTurn(status);
+};
+
+export const setIsCardPickedInTurn = (gameId: string, status: boolean) => {
+  const game = InMemoryDataStore.getGame(gameId);
+  game.setIsCardPickedInTurn(status);
+};
+
+export const endPlayerTurn = (gameId: string) => {
+  const game = InMemoryDataStore.getGame(gameId);
+  return game.setNextPlayerTurnIndex();
 };

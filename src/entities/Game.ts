@@ -17,6 +17,7 @@ export class Game {
   private playerTurnIndex: number;
   private playerTurnSequence: string[];
   private isCoinPlacedInTurn: boolean;
+  private isCardPickedInTurn: boolean;
   private board: Board;
   private isLocked: boolean;
   private isStarted: boolean;
@@ -35,6 +36,7 @@ export class Game {
     this.roomId = "";
     this.isActive = true;
     this.isCoinPlacedInTurn = false;
+    this.isCardPickedInTurn = false;
   }
 
   public getGameDetails() {
@@ -50,6 +52,7 @@ export class Game {
       roomId: this.roomId,
       isActive: this.isActive,
       isCoinPlacedInTurn: this.isCoinPlacedInTurn,
+      isCardPickedInTurn: this.isCardPickedInTurn,
     };
   }
 
@@ -182,5 +185,18 @@ export class Game {
 
   public setIsCoinPlacedInTurn(status: boolean) {
     this.isCoinPlacedInTurn = status;
+  }
+
+  public setIsCardPickedInTurn(status: boolean) {
+    this.isCardPickedInTurn = status;
+  }
+
+  public setNextPlayerTurnIndex() {
+    const currentIndex = this.playerTurnIndex;
+    const totalPlayers = this.playerTurnSequence.length;
+    this.playerTurnIndex = (currentIndex + 1) % totalPlayers;
+    this.isCoinPlacedInTurn = false;
+    this.isCardPickedInTurn = false;
+    return this.playerTurnIndex;
   }
 }

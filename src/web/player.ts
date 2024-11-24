@@ -100,6 +100,14 @@ routes.patch(
 
 routes.patch("/getCard", authMiddleware, (req, res) => {
   const { gameId = "", playerId = "" } = req?.authParams || {};
+  const game = GameService.getGameDetails(gameId);
+  if (game.isCardPickedInTurn) {
+    res.status(400).json({
+      isSuccess: false,
+      errorMessage: "Card already picked in this turn.",
+    });
+    return;
+  }
   const player = GameService.getPlayer(gameId, playerId);
   const playerCards = player.getCards();
   if (playerCards.length >= 5) {
@@ -110,8 +118,32 @@ routes.patch("/getCard", authMiddleware, (req, res) => {
     return;
   }
   GameService.assignCardToPlayer(gameId, playerId);
+  GameService.setIsCardPickedInTurn(gameId, true);
   res.status(200).json({
     isSuccess: true,
+  });
+});
+
+routes.patch("/endTurn", authMiddleware, (req, res) => {
+  const { gameId = "", playerId = "" } = req?.authParams || {};
+  const game = GameService.getGameDetails(gameId);
+  const currentTurnPlayerId = game.playerTurnSequence[game.playerTurnIndex];
+  if (playerId !== currentTurnPlayerId) {
+    res.status(400).json({
+      isSuccess: false,
+      errorMessage: "It is not your turn.",
+    });
+    return;
+  }
+  const nextTurnIndex = GameService.endPlayerTurn(gameId);
+  res.status(200).json({
+    isSuccess: true,
+  });
+
+  const socketRoomId = GameService.getGameRoomId(gameId);
+  const io: Server = req.app.get(SOCKET_IO);
+  io.to(socketRoomId).emit("nextTurn", {
+    nextTurnIndex: nextTurnIndex,
   });
 });
 
