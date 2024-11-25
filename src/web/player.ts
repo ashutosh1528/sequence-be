@@ -1,4 +1,4 @@
-import { Request, Router } from "express";
+import { Request, Router, Response } from "express";
 import { Server } from "socket.io";
 import * as GameService from "../service/game";
 import { authMiddleware } from "../middleware/auth.middleware";
@@ -8,6 +8,11 @@ import { SOCKET_IO } from "../constants";
 import getWildCardInfo from "../utils/getWildCardInfo";
 
 const routes = Router();
+
+type ErrorResponse = {
+  isSuccess: boolean;
+  errorMessage: string;
+};
 
 type MoveRequest = {
   cardFace: string;
@@ -167,5 +172,50 @@ routes.patch("/endTurn", authMiddleware, (req, res) => {
     nextTurnIndex: nextTurnIndex,
   });
 });
+
+type DiscardCardPayload = {
+  cardFace: string;
+};
+type DiscardCardResponse = {
+  isSuccess: boolean;
+};
+routes.patch(
+  "/discardCard",
+  authMiddleware,
+  (
+    req: Request<{}, {}, DiscardCardPayload>,
+    res: Response<ErrorResponse | DiscardCardResponse>
+  ) => {
+    const { gameId = "", playerId = "" } = req?.authParams || {};
+    const { cardFace } = req?.body || {};
+    if (typeof cardFace !== "string") {
+      res.status(400).json({
+        isSuccess: false,
+        errorMessage: "Card is missing/invalid.",
+      });
+    }
+    const playerCards = GameService.getPlayerCards(gameId, playerId);
+    if (!playerCards.includes(cardFace)) {
+      res.status(400).json({
+        isSuccess: false,
+        errorMessage: "You do not have the card you want to discard.",
+      });
+    }
+    const board = GameService.getBoard(gameId);
+    const isCardPlayable = board.isCardPlayable(cardFace);
+    if (isCardPlayable) {
+      res.status(400).json({
+        isSuccess: false,
+        errorMessage: "This card can still be played as a slot is available.",
+      });
+    }
+    const player = GameService.getPlayer(gameId, playerId);
+    player.removeCard(cardFace);
+    GameService.assignCardToPlayer(gameId, playerId);
+    res.status(200).json({
+      isSuccess: true,
+    });
+  }
+);
 
 export default routes;

@@ -21,4 +21,16 @@ export class Board {
     this.gameBoard[row][column].teamId = placedTeamId;
     return placedTeamId;
   }
+
+  public isCardPlayable(cardFace: string) {
+    if (cardFace.includes("J")) return true;
+    let filledSlots = 0;
+    for (const row of this.gameBoard) {
+      for (const cell of row) {
+        if (cell.face === cardFace && cell.teamId) filledSlots += 1;
+        if (filledSlots === 2) return false;
+      }
+    }
+    return true;
+  }
 }
