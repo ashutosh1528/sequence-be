@@ -18,7 +18,7 @@ import {
 const app = express();
 const port = 9000;
 const corsOptions = {
-  origin: "http://localhost:3000",
+  origin: "*",
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTION"],
   allowedHeaders: ["Content-Type"],
   credentials: true,
@@ -28,7 +28,7 @@ app.use(express.json());
 app.use(cors(corsOptions));
 app.use(cookieParser());
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: "http://localhost:3000" } });
+const io = new Server(server, { cors: { origin: "*" } });
 app.set(SOCKET_IO, io);
 io.on("connection", (socket) => {
   socket.on("createGameRoom", createGameRoom(socket));
