@@ -3,6 +3,8 @@ import { GameDetailsFE } from "../@types/GameDetails.interface";
 import { InMemoryDataStore } from "../datastore/InMemoryDataStore";
 import getGameStatus from "../utils/getGameStatus";
 import { TeamDetailsFE } from "src/@types/TeamDetails.interface";
+import { Cell } from "src/@types/Cell.type";
+import getCellIndices from "../utils/getCellIndices";
 
 export const createGame = () => {
   const game = InMemoryDataStore.createGame();
@@ -194,4 +196,63 @@ export const setIsCardPickedInTurn = (gameId: string, status: boolean) => {
 export const endPlayerTurn = (gameId: string) => {
   const game = InMemoryDataStore.getGame(gameId);
   return game.setNextPlayerTurnIndex();
+};
+
+export const checkIfSequenceMade = (
+  gameId: string,
+  teamId: string,
+  potentialSequence: string[]
+) => {
+  const game = InMemoryDataStore.getGame(gameId);
+  const boardObj = game.getBoard();
+  const board = boardObj.getBoard();
+
+  let intersection: Cell | {} = {};
+  let foundIntersection = false;
+  let shouldContinue = true;
+  const isSequenceMade = potentialSequence.every((cellId) => {
+    const [x, y] = getCellIndices(cellId);
+    const cell = board[x][y];
+    if (cell.partOfSequence === 1 && !foundIntersection) {
+      foundIntersection = true;
+      intersection = { ...cell };
+    }
+    if (cell.partOfSequence === 1 && foundIntersection) shouldContinue = false;
+
+    return cell.teamId === teamId && shouldContinue && cell.partOfSequence < 2;
+  });
+  return { isSequenceMade, intersection };
+};
+
+export const appendSequence = (
+  gameId: string,
+  playerId: string,
+  sequenceArr: string[],
+  intersectionCell: Cell | {}
+) => {
+  const game = InMemoryDataStore.getGame(gameId);
+  const board = game.getBoard();
+  const team = game.getPlayerTeam(playerId);
+  const sequenceId = team.addSequence(sequenceArr);
+  const partOfSequence = Object.keys(intersectionCell).length ? 2 : 1;
+  sequenceArr.forEach((cellId) => {
+    const [x, y] = getCellIndices(cellId);
+    board.markSequence(x, y, partOfSequence, sequenceId);
+  });
+  if ("sequenceIds" in intersectionCell) {
+    const otherSequenceIds = intersectionCell?.sequenceIds.filter(
+      (ids) => ids !== sequenceId
+    );
+    otherSequenceIds.forEach((seqId) => {
+      const cellIds = team.getSequence(seqId);
+      cellIds.forEach((cellId) => {
+        const [x, y] = getCellIndices(cellId);
+        board.addPartsOfSequence(x, y);
+      });
+    });
+  }
+  return {
+    teamId: team.getId(),
+    score: team.getScore(),
+  };
 };

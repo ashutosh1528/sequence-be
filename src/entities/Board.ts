@@ -33,4 +33,19 @@ export class Board {
     }
     return true;
   }
+
+  public markSequence(
+    x: number,
+    y: number,
+    partOfSequence: number,
+    sequenceId: string
+  ) {
+    const cell = this.gameBoard[x][y];
+    cell.partOfSequence = partOfSequence;
+    cell.sequenceIds.push(sequenceId);
+  }
+
+  public addPartsOfSequence(x: number, y: number) {
+    this.gameBoard[x][y].partOfSequence += 1;
+  }
 }

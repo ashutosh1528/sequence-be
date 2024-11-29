@@ -5,11 +5,13 @@ export class Team {
   private players: string[];
   private score: number;
   private color: string;
+  private sequence: Record<string, string[]>;
   constructor(playerArr: string[]) {
     this.id = nanoid();
     this.players = [...playerArr];
     this.score = 0;
     this.color = "";
+    this.sequence = {};
   }
 
   public getId() {
@@ -30,10 +32,26 @@ export class Team {
       players: this.players,
       score: this.score,
       color: this.color,
+      sequence: this.sequence,
     };
   }
 
   public getTeamId() {
     return this.id;
+  }
+
+  public addSequence(sequenceArr: string[]) {
+    const id = nanoid();
+    this.sequence[id] = [...sequenceArr];
+    this.score += 1;
+    return id;
+  }
+
+  public getSequence(id: string) {
+    return this.sequence?.[id] || [];
+  }
+
+  public getScore() {
+    return this.score;
   }
 }

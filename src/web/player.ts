@@ -6,6 +6,8 @@ import validateCardFace from "../utils/validateCardFace";
 import validateCellId from "../utils/validateCellId";
 import { SOCKET_IO } from "../constants";
 import getWildCardInfo from "../utils/getWildCardInfo";
+import validateSequenceArray from "../utils/validateSequenceArray";
+import getCellIndices from "../utils/getCellIndices";
 
 const routes = Router();
 
@@ -54,8 +56,7 @@ routes.patch(
     }
 
     const board = GameService.getBoard(gameId);
-    const idParts = cellId.split(".");
-    const [x, y] = [parseInt(idParts[0], 10), parseInt(idParts[1], 10)];
+    const [x, y] = getCellIndices(cellId);
     const boardCell = board.getBoard()[x][y];
 
     if (boardCell.face === "JJ") {
@@ -99,8 +100,14 @@ routes.patch(
       });
       return;
     }
+    if (wildCardInfo === "REMOVE_WILDCARD" && boardCell.partOfSequence > 0) {
+      res.status(400).json({
+        isSuccess: false,
+        errorMessage:
+          "Cannot remove a coin which is already part of a sequence.",
+      });
+    }
 
-    // Handle Jacks!
     const playerTeamId =
       GameService.getPlayerTeam(gameId, playerId)?.getTeamId() || "";
     const placedTeamId = board.placeCoin(x, y, playerTeamId, wildCardInfo);
@@ -214,6 +221,56 @@ routes.patch(
     GameService.assignCardToPlayer(gameId, playerId);
     res.status(200).json({
       isSuccess: true,
+    });
+  }
+);
+
+type AnnounceSequencePayload = {
+  potentialSequence: string[];
+};
+routes.patch(
+  "/announceSequence",
+  authMiddleware,
+  (req: Request<{}, {}, AnnounceSequencePayload>, res) => {
+    const { gameId = "", playerId = "" } = req?.authParams || {};
+    const { potentialSequence } = req?.body || {};
+    const isPotentialSequenceValid = validateSequenceArray(potentialSequence);
+    if (!isPotentialSequenceValid) {
+      res.status(400).json({
+        isSuccess: false,
+        errorMessage: "Given set of cells are invalid",
+      });
+      return;
+    }
+
+    const playerTeamObj = GameService.getPlayerTeam(gameId, playerId);
+    const { isSequenceMade, intersection: intersectionCell } =
+      GameService.checkIfSequenceMade(
+        gameId,
+        playerTeamObj.getId(),
+        potentialSequence
+      );
+    if (isSequenceMade) {
+      const { teamId, score } = GameService.appendSequence(
+        gameId,
+        playerId,
+        potentialSequence,
+        intersectionCell
+      );
+      // check for is game won !
+      const board = GameService.getBoard(gameId);
+      const socketRoomId = GameService.getGameRoomId(gameId);
+      const io: Server = req.app.get(SOCKET_IO);
+      io.to(socketRoomId).emit("scoreUpdated", {
+        teamId,
+        score,
+        board: board.getBoard(),
+        cellIds: potentialSequence,
+      });
+    }
+
+    res.status(200).json({
+      isSuccess: isSequenceMade,
     });
   }
 );
