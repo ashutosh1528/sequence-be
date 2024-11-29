@@ -67,6 +67,10 @@ export class Player {
     }
   }
 
+  public reset() {
+    this.cards = [];
+  }
+
   public getCards() {
     return this.cards;
   }

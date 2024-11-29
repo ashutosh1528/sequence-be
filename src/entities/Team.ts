@@ -51,6 +51,11 @@ export class Team {
     return this.sequence?.[id] || [];
   }
 
+  public reset() {
+    this.sequence = {};
+    this.score = 0;
+  }
+
   public getScore() {
     return this.score;
   }

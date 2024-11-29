@@ -275,3 +275,24 @@ export const findWinnerTeam = (gameId: string) => {
   if (teamWonId) game.setWinnerTeamId(teamWonId);
   return teamWonId;
 };
+
+export const endGame = (gameId: string) => {
+  const game = InMemoryDataStore.getGame(gameId);
+  const socketId = game.getRoomId();
+  game.clearGame();
+  InMemoryDataStore.deleteGame(gameId);
+  return socketId;
+};
+
+export const resetGame = (gameId: string) => {
+  const game = InMemoryDataStore.getGame(gameId);
+  game.resetGame();
+  const teams = game.getTeams();
+  Object.values(teams).forEach((team) => {
+    team.reset();
+  });
+  const players = game.getPlayers();
+  Object.values(players).forEach((player) => {
+    player.reset();
+  });
+};

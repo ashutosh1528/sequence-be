@@ -208,7 +208,23 @@ export class Game {
     this.isCardPickedInTurn = false;
     return this.playerTurnIndex;
   }
+
   public setWinnerTeamId(teamId: string) {
     this.winnerTeamId = teamId;
+  }
+
+  public resetGame() {
+    this.deck = new Deck();
+    this.board = new Board();
+    this.winnerTeamId = "";
+    this.isCoinPlacedInTurn = false;
+    this.isCardPickedInTurn = false;
+  }
+
+  public clearGame() {
+    this.deck = null as unknown as Deck;
+    this.board = null as unknown as Board;
+    this.players = null as unknown as Record<string, Player>;
+    this.teams = null as unknown as Record<string, Team>;
   }
 }

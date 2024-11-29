@@ -40,6 +40,10 @@ export class InMemoryDataStore {
     throw Error("Game does not exists");
   }
 
+  public static deleteGame(id: string) {
+    this.instance.games[id] = null as unknown as Game;
+  }
+
   // update game
   // delete game
 }

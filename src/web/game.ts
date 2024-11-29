@@ -361,10 +361,43 @@ routes.get(
   }
 );
 
-// hack API for now !
-routes.post("/hack", authMiddleware, (req, res) => {
-  const { gameId = "" } = req?.authParams || {};
-  GameService.stopGame(gameId);
+routes.post("/endGame", authMiddleware, (req, res) => {
+  const { gameId = "", playerId = "" } = req?.authParams || {};
+  const game = GameService.getGameDetails(gameId);
+  if (!game.players[playerId].isAdmin) {
+    res.status(400).json({
+      isSuccess: false,
+      errorMessage: "Only admins can end the game.",
+    });
+    return;
+  }
+  const socketRoomId = GameService.endGame(gameId);
+  const io: Server = req.app.get(SOCKET_IO);
+  io.to(socketRoomId).emit("gameClosed", {
+    isEnded: true,
+  });
+  res.status(200).json({
+    isSuccess: true,
+  });
+});
+
+routes.post("/resetGame", authMiddleware, (req, res) => {
+  const { gameId = "", playerId = "" } = req?.authParams || {};
+  const game = GameService.getGameDetails(gameId);
+  if (!game.players[playerId].isAdmin) {
+    res.status(400).json({
+      isSuccess: false,
+      errorMessage: "Only admins can end the game.",
+    });
+    return;
+  }
+  GameService.resetGame(gameId);
+  GameService.assignCards(gameId);
+  const socketRoomId = GameService.getGameRoomId(gameId);
+  const io: Server = req.app.get(SOCKET_IO);
+  io.to(socketRoomId).emit("gameReset", {
+    isReset: true,
+  });
   res.status(200).json({
     isSuccess: true,
   });
