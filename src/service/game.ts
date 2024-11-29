@@ -5,6 +5,7 @@ import getGameStatus from "../utils/getGameStatus";
 import { TeamDetailsFE } from "src/@types/TeamDetails.interface";
 import { Cell } from "src/@types/Cell.type";
 import getCellIndices from "../utils/getCellIndices";
+import isCornerCell from "../utils/isCornerCell";
 
 export const createGame = () => {
   const game = InMemoryDataStore.createGame();
@@ -216,10 +217,13 @@ export const checkIfSequenceMade = (
     if (cell.partOfSequence === 1 && !foundIntersection) {
       foundIntersection = true;
       intersection = { ...cell };
-    }
-    if (cell.partOfSequence === 1 && foundIntersection) shouldContinue = false;
+    } else if (cell.partOfSequence === 1 && foundIntersection)
+      shouldContinue = false;
 
-    return cell.teamId === teamId && shouldContinue && cell.partOfSequence < 2;
+    return (
+      (cell.teamId === teamId && shouldContinue && cell.partOfSequence < 2) ||
+      isCornerCell(cell.id)
+    );
   });
   return { isSequenceMade, intersection };
 };
