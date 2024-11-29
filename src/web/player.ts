@@ -257,6 +257,7 @@ routes.patch(
         potentialSequence,
         intersectionCell
       );
+      const winnerTeamId = GameService.findWinnerTeam(gameId);
       // check for is game won !
       const board = GameService.getBoard(gameId);
       const socketRoomId = GameService.getGameRoomId(gameId);
@@ -266,6 +267,7 @@ routes.patch(
         score,
         board: board.getBoard(),
         cellIds: potentialSequence,
+        winnerTeamId,
       });
     }
 

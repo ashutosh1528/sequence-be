@@ -14,4 +14,5 @@ export type GameDetailsFE = {
   isCardPickedInTurn: boolean;
   playerTurnSequence: string[];
   playerTurnIndex: number;
+  winnerTeamId: string;
 };

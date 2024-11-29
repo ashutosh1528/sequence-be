@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import * as AuthService from "../service/auth";
+import * as GameService from "../service/game";
 import { TOKEN_COOKIE } from "../constants";
 
 // Need to delete cookies if token is not valid, somehow !
@@ -11,6 +12,8 @@ export const authMiddleware = (
 ) => {
   const token = req.cookies?.[TOKEN_COOKIE] || "";
   const { gameId, playerId } = AuthService.verifyToken(token);
+  const game = GameService.getGameDetails(gameId);
+  if (game.winnerTeamId) throw Error("Game is already over !");
   req.authParams = {
     gameId,
     playerId,

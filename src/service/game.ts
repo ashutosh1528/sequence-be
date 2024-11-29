@@ -59,6 +59,7 @@ export const getGameDetails = (gameId: string): GameDetailsFE => {
     isCardPickedInTurn: details.isCardPickedInTurn,
     playerTurnSequence: details.playerTurnSequence,
     playerTurnIndex: details.playerTurnIndex,
+    winnerTeamId: details.winnerTeamId,
     gameStatus: getGameStatus(
       details.isActive,
       details.isStarted,
@@ -259,4 +260,18 @@ export const appendSequence = (
     teamId: team.getId(),
     score: team.getScore(),
   };
+};
+
+export const findWinnerTeam = (gameId: string) => {
+  const game = InMemoryDataStore.getGame(gameId);
+  const allTeams = game.getTeams();
+  const numberOfTeams = Object.keys(allTeams).length;
+  let teamWonId = "";
+  Object.values(allTeams).forEach((team) => {
+    const teamScore = team.getScore();
+    if (numberOfTeams === 2 && teamScore >= 3) teamWonId = team.getId();
+    else if (numberOfTeams === 3 && teamScore >= 2) teamWonId = team.getId();
+  });
+  if (teamWonId) game.setWinnerTeamId(teamWonId);
+  return teamWonId;
 };

@@ -22,6 +22,7 @@ export class Game {
   private isLocked: boolean;
   private isStarted: boolean;
   private isActive: boolean;
+  private winnerTeamId: string;
   private roomId: string;
   constructor(id: string) {
     this.id = id;
@@ -37,6 +38,7 @@ export class Game {
     this.isActive = true;
     this.isCoinPlacedInTurn = false;
     this.isCardPickedInTurn = false;
+    this.winnerTeamId = "";
   }
 
   public getGameDetails() {
@@ -53,6 +55,7 @@ export class Game {
       isActive: this.isActive,
       isCoinPlacedInTurn: this.isCoinPlacedInTurn,
       isCardPickedInTurn: this.isCardPickedInTurn,
+      winnerTeamId: this.winnerTeamId,
     };
   }
 
@@ -204,5 +207,8 @@ export class Game {
     this.isCoinPlacedInTurn = false;
     this.isCardPickedInTurn = false;
     return this.playerTurnIndex;
+  }
+  public setWinnerTeamId(teamId: string) {
+    this.winnerTeamId = teamId;
   }
 }
