@@ -17,15 +17,33 @@ import {
 
 const app = express();
 const port = 9000;
-const corsOptions = {
-  origin: "*",
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTION"],
-  allowedHeaders: ["Content-Type"],
-  credentials: true,
-};
+
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://localhost:3000",
+  /\.ashutoshagrawal\.dev$/,
+];
 
 app.use(express.json());
-app.use(cors(corsOptions));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (
+        !origin ||
+        allowedOrigins.some((pattern) =>
+          pattern instanceof RegExp ? pattern.test(origin) : pattern === origin
+        )
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTION"],
+    allowedHeaders: ["Content-Type"],
+  })
+);
 app.use(cookieParser());
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
