@@ -46,7 +46,25 @@ app.use(
 );
 app.use(cookieParser());
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: "*" } });
+const io = new Server(server, {
+  cors: {
+    origin: (origin, callback) => {
+      if (
+        !origin ||
+        allowedOrigins.some((pattern) =>
+          pattern instanceof RegExp ? pattern.test(origin) : pattern === origin
+        )
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTION"],
+    allowedHeaders: ["Content-Type"],
+  },
+});
 app.set(SOCKET_IO, io);
 io.on("connection", (socket) => {
   socket.on("createGameRoom", createGameRoom(socket));
