@@ -16,6 +16,7 @@ import {
 } from "./web/socket";
 
 const app = express();
+const baseRouter = express.Router();
 const port = 9000;
 
 const allowedOrigins = [
@@ -55,8 +56,10 @@ io.on("connection", (socket) => {
   socket.on("playerRemoved", playerRemoved(socket));
   socket.on("exitGame", exitGame(io));
 });
-app.use("/game", GameRoute);
-app.use("/player", PlayerRoute);
+baseRouter.use("/game", GameRoute);
+baseRouter.use("/player", PlayerRoute);
+
+app.use("/sequence", baseRouter);
 
 InMemoryDataStore.getInstance();
 
@@ -64,7 +67,7 @@ app.get("/health-check", (req, res) => {
   res.send("Server is Up");
 });
 
-server.listen(port, () => {
+server.listen(port, "0.0.0.0", () => {
   console.log(`Server is running on port ${port}`);
 });
 
