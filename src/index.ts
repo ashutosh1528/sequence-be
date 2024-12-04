@@ -47,6 +47,7 @@ app.use(
 app.use(cookieParser());
 const server = http.createServer(app);
 const io = new Server(server, {
+  path: "/sequence/socket.io",
   cors: {
     origin: (origin, callback) => {
       if (
